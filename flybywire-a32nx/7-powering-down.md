@@ -12,8 +12,8 @@
     - [Seat Belts Lights](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/signs/#seat-belts): SEAT BELTS sign - set OFF
     - [Beacon Lights](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#beacon): BEACON switch - set OFF
 
-> [!NOTE] flyPad
-> Perform PARKING checklist
+> [!NOTE]
+> flyPad: Perform PARKING checklist
 
 ## Disembarking Passengers and Baggage
 
@@ -37,5 +37,5 @@
 - [External Power](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/elec/#ext-pwr): EXT PWR pushbutton - set OFF if turned on
 - [Battery](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/elec/#bat-1-2): BAT 1 & 2 pushbuttons - set OFF
 
-> [!NOTE] flyPad
-> Perform SECURING AIRCRAFT checklist
+> [!NOTE]
+> flyPad: Perform SECURING AIRCRAFT checklist

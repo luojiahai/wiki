@@ -18,8 +18,8 @@
     - [Landing Lights](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#land-l-r): LAND L & R switches - set both OFF
 - [Brake Fans](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/front/autobrake-gear/#brk-fan): BRK FAN pushbutton - set ON if hot brakes warning
 
-> [!NOTE] flyPad
-> Perform AFTER LANDING checklist
+> [!NOTE]
+> flyPad: Perform AFTER LANDING checklist
 
 ## Taxi to Gate
 

@@ -31,8 +31,8 @@
 - [Pitch Trim](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/thrust-pitch-trim/#pitch-trim-wheel): PITCH TRIM handwheel - set CHECK
 - [Rudder Trim](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/rudder-trim/): RUD TRIM position indication - set ZERO
 
-> [!NOTE] flyPad
-> Perform AFTER START checklist
+> [!NOTE]
+> flyPad: Perform AFTER START checklist
 
 ## Taxi
 
@@ -42,5 +42,5 @@
     - [Nose Lights](https://docs.flybywiresim.com/pilots-corner/a380x/a380x-briefing/flight-deck/ovhd/ext-lt/#nose): NOSE switch - set TAXI
 - [Parking Brake](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/parking-brake/): PARK BRK handle - set OFF
 
-> [!NOTE] flyPad
-> Perform TAXI checklist
+> [!NOTE]
+> flyPad: Perform TAXI checklist
