@@ -5,7 +5,7 @@
 - [Parking Brake](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/parking-brake/): PARK BRK handle - verify ON
 - [Speed Brake](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/speedbrake/): SPEED BRAKE lever - verify RET
 - [Flaps](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/flaps/): FLAPS lever - verify 0
-- [WX Radar](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/radar/): WX RADAR / MODE selector - verify OFF
+- [WX Radar Mode](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/radar/#mode-display-mode-selector): WX RADAR / MODE selector - verify OFF
 - [Engine Master](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/engine/#eng-master-1-2): ENG MASTER 1 & 2 switches - verify OFF
 - [Engine Mode](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/engine/#eng-mode-selector): ENG MODE selector - verify NORM
 - [Thrust Lever](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/thrust-pitch-trim/): THRUST lever - verify IDLE
@@ -41,7 +41,7 @@
 
 ### Interior Lighting
 
-- [Overhead Integral Lighting](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/int-lt/#ovhd-integ-lt): OVHD INTEG LT brightness knob - adjust to BRT
+- [Overhead Integral Lighting Brightness](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/int-lt/#ovhd-integ-lt): OVHD INTEG LT brightness knob - adjust to BRT
 - [Seat Belts Lights](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/signs/#seat-belts): SEAT BELTS sign - set ON
 - [No Smoking Lights](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/signs/#no-smoking): NO SMOKING sign - set ON
 - [Emergency Exit Lights](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/signs/#emer-exit-lt): EMER EXIT LT selector - set ARM
@@ -68,11 +68,11 @@
 
 ### Displays
 
-- [Primary Flight Display](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/front/ilcp/#offbrt-knobs): PFD brightness knob - adjust to BRT
-- [Navigation Display](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/front/ilcp/#offbrt-knobs): ND brightness knob - adjust to BRT
-- [ECAM Upper Display](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/ecam-control/#off-brt-knobs): ECAM UPPER DISPLAY brightness knob - adjust to BRT
-- [ECAM Lower Display](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/ecam-control/#off-brt-knobs): ECAM LOWER DISPLAY brightness knob - adjust to BRT
-- [Integral Lighting](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/lighting-capt/#integ-lt-main-pnl-and-ped-knob): INTEG LT brightness knob - adjust to BRT
+- [Primary Flight Display Brightness](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/front/ilcp/#offbrt-knobs): PFD brightness knob - adjust to BRT
+- [Navigation Display Brightness](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/front/ilcp/#offbrt-knobs): ND brightness knob - adjust to BRT
+- [ECAM Upper Display Brightness](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/ecam-control/#off-brt-knobs): ECAM UPPER DISPLAY brightness knob - adjust to BRT
+- [ECAM Lower Display Brightness](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/ecam-control/#off-brt-knobs): ECAM LOWER DISPLAY brightness knob - adjust to BRT
+- [Integral Lighting Brightness](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/lighting-capt/#integ-lt-main-pnl-and-ped-knob): INTEG LT brightness knob - adjust to BRT
 
 ### Radio
 
@@ -95,4 +95,5 @@ N/A
 - Perform other services as required
 - Start boarding passengers
 
-## **flyPad: Perform COCKPIT PREPARATION checklist**
+> [!NOTE]
+> flyPad: Perform COCKPIT PREPARATION checklist

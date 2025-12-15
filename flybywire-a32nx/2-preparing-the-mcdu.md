@@ -45,4 +45,5 @@ N/A
 - [Takeoff VR](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/perf/#take-off): VR - set
 - [Takeoff V2](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/perf/#take-off): V2 - set
 
-## **flyPad: Perform BEFORE START checklist**
+> [!NOTE]
+> flyPad: Perform BEFORE START checklist

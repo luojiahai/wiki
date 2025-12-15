@@ -11,7 +11,8 @@
 - [Call All Cabin Crew](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/calls/#all): CALLS ALL pushbutton - press
 - [Takeoff Config](https://docs.flybywiresim.com/pilots-corner/a380x/a380x-briefing/flight-deck/pedestal/ecam-cp/#to-config): T.O CONFIG pushbutton - press to TEST
 
-## flyPad: Perform LINE-UP checklist
+> [!NOTE]
+> flyPad: Perform LINE-UP checklist
 
 ### Entering Runway
 
