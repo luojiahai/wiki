@@ -2,17 +2,15 @@
 
 ## Cockpit Preparation
 
-| name | display | action |
-| --- | --- | --- |
-| [Parking Brake](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/parking-brake/) | PARK BRK handle | verify ON |
-| [Speed Brake](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/speedbrake/) | SPEED BRAKE lever | verify RET |
-| [Flaps](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/flaps/) | FLAPS lever | verify 0 |
-| [WX Radar](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/radar/) | WX RADAR / MODE selector | verify OFF |
-| [Engine Master](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/engine/#eng-master-1-2) | ENG MASTER 1 & 2 switches | verify OFF |
-| [Engine Mode](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/engine/#eng-mode-selector) | ENG MODE selector | verify NORM |
-| [Thrust Lever](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/thrust-pitch-trim/) | THRUST lever | verify IDLE |
-| [Gear](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/front/autobrake-gear/) | LANDING GEAR lever | verify DOWN |
-| [Wiper](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/wipers/) | WIPER selector | verify OFF |
+- [Parking Brake](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/parking-brake/): PARK BRK handle - verify ON
+- [Speed Brake](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/speedbrake/): SPEED BRAKE lever - verify RET
+- [Flaps](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/flaps/): FLAPS lever - verify 0
+- [WX Radar](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/radar/): WX RADAR / MODE selector - verify OFF
+- [Engine Master](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/engine/#eng-master-1-2): ENG MASTER 1 & 2 switches - verify OFF
+- [Engine Mode](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/engine/#eng-mode-selector): ENG MODE selector - verify NORM
+- [Thrust Lever](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/thrust-pitch-trim/): THRUST lever - verify IDLE
+- [Gear](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/front/autobrake-gear/): LANDING GEAR lever - verify DOWN
+- [Wiper](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/wipers/): WIPER selector - verify OFF
 
 ## Overhead Panel
 
