@@ -36,3 +36,6 @@
 - [APU Master Switch](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/apu/#master-sw): APU MASTER SW pushbutton - set OFF (wait 2 minutes for the APU FLAP door to close)
 - [External Power](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/elec/#ext-pwr): EXT PWR pushbutton - set OFF if turned on
 - [Battery](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/elec/#bat-1-2): BAT 1 & 2 pushbuttons - set OFF
+
+> [!NOTE]
+> flyPad: Perform SECURING AIRCRAFT checklist
