@@ -1,7 +1,7 @@
 # FlyByWire A32NX
 
-Flight planning: https://www.simbrief.com/
-Flight charts: http://chartfox.org/
+- Flight planning: https://www.simbrief.com/
+- Flight charts: http://chartfox.org/
 
 ## Table of Contents
 
