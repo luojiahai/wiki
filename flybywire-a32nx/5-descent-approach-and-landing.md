@@ -24,8 +24,8 @@
 - [Localizer/Slope Mode](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/efis_control/#ls-pushbutton): LS pushbutton - press
 - [Radio Navigation Page](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/rad-nav/): MCDU / RAD NAV - verify LS/FREQ
 
-> [!NOTE]
-> flyPad: Perform APPROACH checklist
+> [!NOTE] flyPad
+> Perform APPROACH checklist
 
 ## Flying the STAR and Approach
 
@@ -56,8 +56,8 @@
 - [Speed Brake](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/speedbrake/): SPEED BRAKE lever - set ARM
 - [Call All Cabin Crew](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/calls/#all): CALLS ALL pushbutton - press
 
-> [!NOTE]
-> flyPad: Perform LANDING checklist
+> [!NOTE] flyPad
+> Perform LANDING checklist
 
 ## Landing
 

@@ -95,5 +95,5 @@ N/A
 - Perform other services as required
 - Start boarding passengers
 
-> [!NOTE]
-> flyPad: Perform COCKPIT PREPARATION checklist
+> [!NOTE] flyPad
+> Perform COCKPIT PREPARATION checklist
