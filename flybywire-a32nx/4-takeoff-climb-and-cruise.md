@@ -4,22 +4,19 @@
 
 ### Down to the line (before Takeoff Clearance)
 
-- [Altitude selector](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/fcu/#altitude-selector-knob-inner-and-outer): ALT selector - set cleared altitude
-- [Weather Radar System](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/radar/#radar): SYS switch - set 1
-- [Predictive Windshear System](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/radar/#pws): PWS switch - set AUTO
-- [ATC Mode](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/atc-tcas/#mode-selector): ATC mode selector - set AUTO or ON
-- [Altitude Reporting](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/atc-tcas/#alt-rptg-switch): ALT RPTG selector - set ON
-- [Autobrake](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/front/autobrake-gear/#autobrk): AUTO/BRK - set MAX
+- [Parking Brake](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/parking-brake/): PARK BRK handle - set ON
+- [Altitude selector](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/fcu/#altitude-selector-knob-inner-and-outer): ALT selector - verify cleared altitude
+- [Weather Radar System](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/radar/#radar): SYS switch - verify 1
+- [Predictive Windshear System](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/radar/#pws): PWS switch - verify AUTO
+- [ATC Mode](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/atc-tcas/#mode-selector): ATC mode selector - verify AUTO or ON
+- [Altitude Reporting](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/atc-tcas/#alt-rptg-switch): ALT RPTG selector - verify ON
+- [Autobrake](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/front/autobrake-gear/#autobrk): AUTO/BRK - verify MAX
 - [Call All Cabin Crew](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/calls/#all): CALLS ALL pushbutton - press
 - [Takeoff Config](https://docs.flybywiresim.com/pilots-corner/a380x/a380x-briefing/flight-deck/pedestal/ecam-cp/#to-config): T.O CONFIG pushbutton - press to TEST
+- Request takeoff clearance
 
 > [!NOTE]
 > flyPad: Perform LINE-UP checklist
-
-### Entering Runway
-
-- [Parking Brake](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/parking-brake/): PARK BRK handle - set ON
-- Request takeoff clearance
 
 ## Takeoff
 
