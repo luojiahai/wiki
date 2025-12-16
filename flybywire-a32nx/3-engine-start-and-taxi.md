@@ -34,6 +34,10 @@
 > [!NOTE]
 > flyPad: Perform AFTER START checklist
 
+## Performing a Flight Controls Check
+
+- [Flight Controls Page](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/ecam-control/#system-page-buttons): F/CTL pushbutton - press
+
 ## Taxi
 
 - Request taxi clearance
