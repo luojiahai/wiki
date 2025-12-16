@@ -4,6 +4,7 @@
 
 ### Down to the line (before Takeoff Clearance)
 
+- Hold at a runway holding point
 - [Parking Brake](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/parking-brake/): PARK BRK handle - set ON
 - [Altitude selector](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/fcu/#altitude-selector-knob-inner-and-outer): ALT selector - verify cleared altitude
 - [Weather Radar System](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/radar/#radar): SYS switch - verify 1
