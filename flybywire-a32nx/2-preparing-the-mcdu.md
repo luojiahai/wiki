@@ -15,6 +15,7 @@ N/A
 ### INIT A
 
 - [Initialize Flight Plan](https://docs.flybywiresim.com/aircraft/a32nx/feature-guides/simbrief/#initialize-flight-plan): INIT REQUEST - select to auto-populate
+- [Cruise Flight Level](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/init/#init-a): CRZ FL - verify set
 
 ### FLIGHT PLAN
 
