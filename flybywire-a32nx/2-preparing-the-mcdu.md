@@ -8,6 +8,8 @@
 
 ## MCDU
 
+- Request IFR clearance
+
 ### DATA
 
 N/A
