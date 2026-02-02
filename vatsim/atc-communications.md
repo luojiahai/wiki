@@ -35,15 +35,15 @@
 
 | Action | Pilot | ATC | Pilot Response |
 | --- | --- | --- | --- |
-| Lineup and wait | [The Airport you are at] Tower, good day, [Airplane Callsign] at [Holding Point], ready for departure. | [Airplane Callsign], [Current Airport] Tower good day, line up and wait runway [Active Runway]. | Line up and wait runway [Active Runway], [Airplane Callsign]. |
+| Lineup and wait | [Current Airport] Tower, good day, [Airplane Callsign] at [Holding Point], ready for departure. | [Airplane Callsign], [Current Airport] Tower good day, line up and wait runway [Active Runway]. | Line up and wait runway [Active Runway], [Airplane Callsign]. |
 | Takeoff | | [Airplane Callsign], wind [wind information and speed in knots], runway [Active Runway], cleared for takeoff. | Cleared for takeoff runway [Active Runway],[Airplane Callsign]. |
-| Handoff to departure | | [Airplane Callsign], contact [Current Airport] Departure on [Departure Frequency], bye bye. | Contact [The Airport you are at] Departure on [Departure Frequency], [Airplane Callsign], bye bye. |
+| Handoff to departure | | [Airplane Callsign], contact [Current Airport] Departure on [Departure Frequency], bye bye. | Contact [Current Airport] Departure on [Departure Frequency], [Airplane Callsign], bye bye. |
 
 ## Climb (Departure)
 
 | Action | Pilot | ATC | Pilot Response |
 | --- | --- | --- | --- |
-| Contact | [The Airport you are at] departure, good day, [Airplane Callsign], passing [Current Altitude], [Departure Route or Heading]. | [Airplane Callsign], [Current Airport] Departure, identified, climb [Flight Level]. | Climb [Flight Level], [Airplane Callsign]. |
+| Contact Departure | [Current Airport] departure, good day, [Airplane Callsign], passing [Current Altitude], [Departure Route or Heading]. | [Airplane Callsign], [Current Airport] Departure, identified, climb [Flight Level]. | Climb [Flight Level], [Airplane Callsign]. |
 | Direct route | | [Airplane Callsign], direct to [VOR]. | Direct [VOR], [Airplane Callsign]. |
 | Handoff to nearest Center | | [Airplane Callsign], contact [Nearest Center] on [Center Frequency], bye bye. | Contact [Nearest Center] on [Center Frequency], [Airplane Callsign], bye bye. |
 
@@ -51,8 +51,32 @@
 
 | Action | Pilot | ATC | Pilot Response |
 | --- | --- | --- | --- |
-| Contact | [Nearest Center], good day, [Airplane Callsign], passing [Current Altitude], (innbound to [VOR] or heading [Current Heading]). | [Airplane Callsign], good day, [Nearest Center], identified, climb [Flight Level]. | Climb [Flight Level], [Airplane Callsign]. |
-| Request decent | [Airplane Callsign], request descent. | [Airplane Callsign], descend to [Flight Level]. | Descending to [Flight Level], [Airplane Callsign]. |
+| Contact Center | [Nearest Center], good day, [Airplane Callsign], passing [Current Altitude], (innbound to [VOR] or heading [Current Heading]). | [Airplane Callsign], good day, [Nearest Center], identified, climb [Flight Level]. | Climb [Flight Level], [Airplane Callsign]. |
+| Request descent | [Airplane Callsign], request descent. | [Airplane Callsign], descend to [Flight Level]. | Descending to [Flight Level], [Airplane Callsign]. |
 | Handoff to another center | | [Airplane Callsign], contact [Center] on [Center Frequency], bye bye. | Contact [Center] on [Center Frequency], [Airplane Callsign], bye bye. |
 | Contact another center and getting an approach | [Center], good day, [Airplane Callsign], passing [Current Altitude] for [Flight Level], (innbound to [VOR] or heading [Current Heading]). | [Airplane Callsign], good day, radar contact, [Standard Terminal Arrival Route], expect [Type of Approach and Active Runway], descend [Flight Level]. | [Standard Terminal Arrival Route], [Type of Approach and Active Runway] and descend [Flight Level], [Airplane Callsign]. |
 | Handoff to Approach | | [Airplane Callsign], contact [Arrival Airport] Approach on [Approach Frequency], bye bye. | Contact [Arrival Airport] Approach on [Approach Frequency], [Airplane Callsign], bye bye. |
+
+## Approach (Approach)
+
+| Action | Pilot | ATC | Pilot Response |
+| --- | --- | --- | --- |
+| Contact Approach | [Arrival Airport] Approach, good day, [Airplane Callsign], [Flight Level], [Standard Terminal Arrival Route]. | [Airplane Callsign], [Arrival Airport] Approach, good day continue approach. | Continue approach, [Airplane Callsign]. |
+| Vector 1 | | [Airplane Callsign], descend [Flight Level] and after [VOR] fly heading [Heading]. | Descend [Flight Level] and after [VOR] fly heading [Heading], [Airplane Callsign]. |
+| Vector 2 | | [Airplane Callsign], fly heading [Heading], descend [Flight Level], QNH [QNH]. | Fly heading [Heading], descend [Flight Level] on QNH [QNH], [Airplane Callsign]. |
+| Vector 3 | | [Airplane Callsign], turn left heading [Heading], speed [Speed]. | Left heading [Heading] and speed [Speed], [Airplane Callsign]. |
+| Approach Clearance | | [Airplane Callsign], turn left heading [Heading], cleared [Type of Approach and Active Runway]. | Turn left heading [a specific heading], cleared [Type of Approach and Active Runway], [Airplane Callsign]. |
+| Handoff to Tower | | [Airplane Callsign], contact [Arrival Airport] Tower on [Tower Frequency], bye bye. | Contact [Arrival Airport] Tower on [Tower Frequency], [Airplane Callsign], bye bye. |
+
+## Land (Tower)
+
+| Action | Pilot | ATC | Pilot Response |
+| --- | --- | --- | --- |
+| Contact Tower | [Arrival Airport] Tower, [Airplane Callsign], [Type of Approach and Active Runway]. | [Airplane Callsign], good day, ([ATC may say a number that indicates if there are airplanes landing on that runway]).
+| Landing Clearance | | [Airplane Callsign], wind [Wind Information], [Active Runway] cleared to land. | Cleared to land [Active Runway], [Airplane Callsign]. |
+
+## Taxi to Gate (Ground)
+
+| Action | Pilot | ATC | Pilot Response |
+| --- | --- | --- | --- |
+| Taxi to gate | | [Airplane Callsign], [Current Airport] Ground, taxi to stand [Gate] via [Taxi Route]. | Taxi to stand [Gate] via [Taxi Route], [Airplane Callsign]. |
