@@ -36,7 +36,7 @@
 | Action | Pilot | ATC | Pilot Response |
 | --- | --- | --- | --- |
 | Lineup and wait | [Current Airport] Tower, good day, [Airplane Callsign] at [Holding Point], ready for departure. | [Airplane Callsign], [Current Airport] Tower good day, line up and wait runway [Active Runway]. | Line up and wait runway [Active Runway], [Airplane Callsign]. |
-| Takeoff | | [Airplane Callsign], wind [wind Information], runway [Active Runway], cleared for takeoff. | Cleared for takeoff runway [Active Runway], [Airplane Callsign]. |
+| Takeoff | | [Airplane Callsign], wind [Wind Information], runway [Active Runway], cleared for takeoff. | Cleared for takeoff runway [Active Runway], [Airplane Callsign]. |
 | Handoff to departure | | [Airplane Callsign], contact [Current Airport] Departure on [Departure Frequency], bye bye. | Contact [Current Airport] Departure on [Departure Frequency], [Airplane Callsign], bye bye. |
 
 ## Climb (Departure)
