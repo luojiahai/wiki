@@ -2,17 +2,13 @@
 
 ## Letters
 
-| | | |
-| --- | --- | --- |
-| Alpha | Juliet | Sierra |
-| Bravo | Kilo | Tango |
-| Charlie | Lima | Uniform |
-| Delta | Mike | Victor |
-| Echo | November | Whiskey |
-| Foxtrot | Oscar | Xray |
-| Golf | Papa | Yankee |
-| Hotel | Quebec | Zulu |
-| India | Romeo | |
+| | | | | | | |
+| --- | --- | --- | --- | --- | --- | --- |
+| **A**lpha | **B**ravo | **C**harlie | **D**elta | **E**cho | **F**oxtrot | **G**olf |
+| **H**otel | **I**ndia | **J**uliet | **K**ilo | **L**ima | **M**ike | **N**ovember |
+| **O**scar | **P**apa | **Q**uebec | **R**omeo | **S**ierra | **T**ango | |
+| **U**niform | **V**ictor | **W**hiskey | **X**ray | **Y**ankee | **Z**ulu | |
+
 
 ## Startup (Delivery)
 
