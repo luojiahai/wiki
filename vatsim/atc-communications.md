@@ -27,7 +27,7 @@
 | Action | Pilot | ATC | Pilot Response |
 | --- | --- | --- | --- |
 | Pushback | [Current Airport] Ground, good day, [Airplane Callsign] at stand [Gate], requesting pushback. | [Airplane Callsign], [Current Airport] Ground, good day, pushback is approved. | Pushback approved, [Airplane Callsign]. |
-| Taxi | [Airplane Callsign], request taxi. | [Airplane Callsign], taxi to [Holding point and/or active runway], via [Taxi Route]. | Taxi to [Holding point and/or active runway], via [Taxi Route], [Airplane Callsign]. 
+| Taxi | [Airplane Callsign], request taxi. | [Airplane Callsign], taxi to [Holding Point and/or Active Runway], via [Taxi Route]. | Taxi to [Holding Point and/or Active Runway], via [Taxi Route], [Airplane Callsign]. 
 | Give way to airplane | | [Airplane Callsign], give way to the [Airline and Plane Type] from the [Right or left]. | Give way to the [Airline and Plane Type] from the [Right or Left], [Airplane Callsign]. |
 | Handoff to Tower | | [Airplane Callsign], at [Holding point or Active runway] hold short and contact Tower on [Tower Frequency], bye bye. | At [Holding point or Active runway] hold short and contact Tower on [Tower Frequency], [Airplane Callsign]. |
 
@@ -36,7 +36,7 @@
 | Action | Pilot | ATC | Pilot Response |
 | --- | --- | --- | --- |
 | Lineup and wait | [Current Airport] Tower, good day, [Airplane Callsign] at [Holding Point], ready for departure. | [Airplane Callsign], [Current Airport] Tower good day, line up and wait runway [Active Runway]. | Line up and wait runway [Active Runway], [Airplane Callsign]. |
-| Takeoff | | [Airplane Callsign], wind [wind information and speed in knots], runway [Active Runway], cleared for takeoff. | Cleared for takeoff runway [Active Runway],[Airplane Callsign]. |
+| Takeoff | | [Airplane Callsign], wind [wind Information], runway [Active Runway], cleared for takeoff. | Cleared for takeoff runway [Active Runway], [Airplane Callsign]. |
 | Handoff to departure | | [Airplane Callsign], contact [Current Airport] Departure on [Departure Frequency], bye bye. | Contact [Current Airport] Departure on [Departure Frequency], [Airplane Callsign], bye bye. |
 
 ## Climb (Departure)
