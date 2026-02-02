@@ -61,7 +61,7 @@
 | Vector 1 | | [Airplane Callsign], descend [Flight Level] and after [VOR] fly heading [Heading]. | Descend [Flight Level] and after [VOR] fly heading [Heading], [Airplane Callsign]. |
 | Vector 2 | | [Airplane Callsign], fly heading [Heading], descend [Flight Level], QNH [QNH]. | Fly heading [Heading], descend [Flight Level] on QNH [QNH], [Airplane Callsign]. |
 | Vector 3 | | [Airplane Callsign], turn left heading [Heading], speed [Speed]. | Left heading [Heading] and speed [Speed], [Airplane Callsign]. |
-| Approach Clearance | | [Airplane Callsign], turn left heading [Heading], cleared [Type of Approach and Active Runway]. | Turn left heading [a specific heading], cleared [Type of Approach and Active Runway], [Airplane Callsign]. |
+| Approach clearance | | [Airplane Callsign], turn left heading [Heading], cleared [Type of Approach and Active Runway]. | Turn left heading [a specific heading], cleared [Type of Approach and Active Runway], [Airplane Callsign]. |
 | Handoff to Tower | | [Airplane Callsign], contact [Arrival Airport] Tower on [Tower Frequency], bye bye. | Contact [Arrival Airport] Tower on [Tower Frequency], [Airplane Callsign], bye bye. |
 
 ## Land (Tower)
@@ -69,7 +69,7 @@
 | Action | Pilot | ATC | Pilot Response |
 | --- | --- | --- | --- |
 | Contact Tower | [Arrival Airport] Tower, [Airplane Callsign], [Type of Approach and Active Runway]. | [Airplane Callsign], good day, ([ATC may say a number that indicates if there are airplanes landing on that runway]).
-| Landing Clearance | | [Airplane Callsign], wind [Wind Information], [Active Runway] cleared to land. | Cleared to land [Active Runway], [Airplane Callsign]. |
+| Landing clearance | | [Airplane Callsign], wind [Wind Information], [Active Runway] cleared to land. | Cleared to land [Active Runway], [Airplane Callsign]. |
 
 ## Taxi to Gate (Ground)
 
