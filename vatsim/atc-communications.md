@@ -61,7 +61,7 @@
 
 | Action | Pilot | ATC | Pilot Response |
 | --- | --- | --- | --- |
-| Contact Approach | [Arrival Airport] Approach, good day, [Airplane Callsign], [Flight Level], [Standard Terminal Arrival Route]. | [Airplane Callsign], [Arrival Airport] Approach, good day continue approach. | Continue approach, [Airplane Callsign]. |
+| Contact Approach | [Arrival Airport] Approach, good day, [Airplane Callsign], [Flight Level], [Standard Terminal Arrival Route]. | [Airplane Callsign], [Arrival Airport] Approach, good day, continue approach. | Continue approach, [Airplane Callsign]. |
 | Vector 1 | | [Airplane Callsign], descend [Flight Level] and after [VOR] fly heading [Heading]. | Descend [Flight Level] and after [VOR] fly heading [Heading], [Airplane Callsign]. |
 | Vector 2 | | [Airplane Callsign], fly heading [Heading], descend [Flight Level], QNH [QNH]. | Fly heading [Heading], descend [Flight Level] on QNH [QNH], [Airplane Callsign]. |
 | Vector 3 | | [Airplane Callsign], turn left heading [Heading], speed [Speed]. | Left heading [Heading] and speed [Speed], [Airplane Callsign]. |
