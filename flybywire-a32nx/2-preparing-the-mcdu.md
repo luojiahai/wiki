@@ -1,52 +1,71 @@
-# Preparing the MCDU
+# 2 · Preparing the MCDU
 
-## SimBrief Integration
+Walk the MCDU pages in order. Most of it comes in from the SimBrief OFP, so the
+work is mainly verifying what arrived.
 
-### Import the SimBrief OFP
+Flight plan and charts: [SimBrief](https://www.simbrief.com/) ·
+[ChartFox](http://chartfox.org/)
 
-- [AOC MENU Page](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/mcdu-menu/#aoc-menu-page): MCDU MENU / ATSU / AOC MENU - select INIT/PRES / INIT DATA REQ
+## Import the SimBrief OFP
 
-## MCDU
+| Page | Action |
+| --- | --- |
+| [MCDU MENU / ATSU / AOC MENU](controls.md#atsu-and-aoc) | select **INIT/PRES** → **INIT DATA REQ** |
 
-- Request IFR clearance
+## INIT A
 
-### DATA
+| Field | Action |
+| --- | --- |
+| [INIT REQUEST](controls.md#init) | select to auto-populate |
+| [CRZ FL](controls.md#init) | verify set |
 
-N/A
+## F-PLN
 
-### INIT A
+| Field | Action |
+| --- | --- |
+| [DEPARTURE](controls.md#flight-plan) | set as planned |
+| [ARRIVAL](controls.md#flight-plan) | set as planned |
+| Discontinuities | clear if any |
+| [ND mode](controls.md#efis-control-panel) selector | verify **PLAN** to walk the route |
 
-- [Initialize Flight Plan](https://docs.flybywiresim.com/aircraft/a32nx/feature-guides/simbrief/#initialize-flight-plan): INIT REQUEST - select to auto-populate
-- [Cruise Flight Level](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/init/#init-a): CRZ FL - verify set
+## INIT B / FUEL PRED
 
-### FLIGHT PLAN
+| Field | Action |
+| --- | --- |
+| [BLOCK](controls.md#init) | set as loaded |
+| [ZFW / ZFWCG](controls.md#init) | select to auto-populate |
 
-- [Departure](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/f-pln/#departure-page): DEPARTURE - set as planned
-- [Arrival](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/f-pln/#arrival-page): ARRIVAL - set as planned
-- Clear discontinuity if any
-- [Navigation Display Plan Mode](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/efis_control/): PLAN - verify
+## PERF — Takeoff
 
-### SECONDARY FLIGHT PLAN
+Calculate the numbers in **flyPad / Performance / Takeoff** first, then enter
+them:
 
-N/A
+| Field | Action | Condition |
+| --- | --- | --- |
+| [T.O SHIFT](controls.md#performance) | set | as required — intersection departure |
+| [V1](controls.md#performance) | set | – |
+| [VR](controls.md#performance) | set | – |
+| [V2](controls.md#performance) | set | – |
+| [FLEX TO TEMP](controls.md#performance) | set | – |
+| [THR RED/ACC](controls.md#performance) | set or verify | – |
+| [ENG OUT ACC](controls.md#performance) | set or verify | as required |
+| [FLAPS/THS](controls.md#performance) | set | takeoff flaps and trim reminder |
 
-### RAD NAV
+## Pages with no action
 
-- Should be auto-populated
+**DATA** · **SEC F-PLN** · **RAD NAV** — RAD NAV should already be populated
+from the flight plan, so verify rather than type.
 
-### INIT FUEL PRED
+## Clearance
 
-- [Block Fuel](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/init/#init-b): BLOCK - set as loaded
-- [Zero Fuel Weight](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/init/#init-b): ZFW/ZFWCG - select to auto-populate
-
-### PERF
-
-- Calculate takeoff performance (flyPad / Performance / Takeoff)
-- [Takeoff Flaps](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/perf/#take-off): FLAPS - set
-- [Takeoff Flex Temp](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/perf/#take-off): FLEX TO TEMP - set
-- [Takeoff V1](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/perf/#take-off): V1 - set
-- [Takeoff VR](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/perf/#take-off): VR - set
-- [Takeoff V2](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/perf/#take-off): V2 - set
+Request IFR clearance from Delivery — see
+[ATC Communications › Clearance Delivery](../vatsim/atc-communications.md#1--clearance-delivery-startup).
 
 > [!NOTE]
-> flyPad: Perform BEFORE START checklist
+> flyPad: perform the **BEFORE START** checklist.
+
+---
+
+Previous: [1 · Starting the Aircraft](1-starting-the-aircraft.md) ·
+Next: [3 · Engine Start and Taxi](3-engine-start-and-taxi.md) ·
+[Index](README.md)

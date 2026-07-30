@@ -1,0 +1,5 @@
+.DS_Store
+
+# Skills installed from skills-lock.json
+.agents/skills/
+.claude/skills/

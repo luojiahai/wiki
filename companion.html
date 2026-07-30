@@ -1,0 +1,733 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#091216">
+<title>A32NX Flight Companion</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #091216;
+    --surface: #0f1a20;
+    --surface-raised: #142229;
+    --surface-active: #18313a;
+    --line: #26383f;
+    --line-strong: #3a5058;
+    --text: #e5eef0;
+    --muted: #9aabb0;
+    --faint: #6f8187;
+    --accent: #63c7db;
+    --accent-strong: #9ae5f1;
+    --condition: #e7ae59;
+    --complete: #70d2a3;
+    --danger: #ed8e80;
+    --header-bg: rgba(9, 18, 22, .92);
+    --shadow: 0 18px 50px rgba(1, 7, 9, .22);
+    --radius: 8px;
+    --sans: "Avenir Next", Avenir, "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, Consolas, monospace;
+  }
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --bg: #edf3f4;
+    --surface: #f7faf9;
+    --surface-raised: #e5edef;
+    --surface-active: #d9e9ec;
+    --line: #c5d2d5;
+    --line-strong: #9fb2b7;
+    --text: #17252a;
+    --muted: #4f646a;
+    --faint: #687b81;
+    --accent: #087f95;
+    --accent-strong: #05697b;
+    --condition: #8a5907;
+    --complete: #16724a;
+    --danger: #a13c30;
+    --header-bg: rgba(237, 243, 244, .94);
+    --shadow: 0 18px 50px rgba(26, 48, 55, .09);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  html, body { margin: 0; min-height: 100%; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.55 var(--sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    transition: background-color .2s ease, color .2s ease;
+  }
+  button, input { font: inherit; }
+  button { color: inherit; }
+  a { color: inherit; }
+  ::selection { background: var(--accent); color: var(--bg); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .skip {
+    position: fixed; left: 16px; top: 12px; z-index: 100;
+    padding: 9px 12px; border-radius: var(--radius);
+    background: var(--accent); color: var(--bg); font-weight: 700;
+    transform: translateY(-160%);
+  }
+  .skip:focus { transform: translateY(0); }
+
+  /* ---------- header ---------- */
+  header {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--header-bg);
+    backdrop-filter: blur(18px) saturate(120%);
+    -webkit-backdrop-filter: blur(18px) saturate(120%);
+    border-bottom: 1px solid var(--line);
+  }
+  .hwrap {
+    width: min(100% - 32px, 1320px); min-height: 68px; margin: 0 auto;
+    display: flex; gap: 18px; align-items: center;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 12px; min-width: 230px;
+    color: var(--text); text-decoration: none;
+  }
+  .brand-mark {
+    display: grid; place-items: center; width: 42px; height: 34px;
+    border: 1px solid var(--line-strong); border-radius: var(--radius);
+    color: var(--accent-strong); font: 750 11px/1 var(--mono); letter-spacing: -.03em;
+  }
+  .brand-copy { display: grid; gap: 1px; }
+  .brand-copy strong { font-size: 14px; line-height: 1.2; letter-spacing: -.01em; }
+  .brand-copy small { color: var(--muted); font-size: 11px; line-height: 1.2; }
+  .spacer { flex: 1 1 auto; }
+  .flight-total {
+    display: grid; gap: 5px; width: min(230px, 22vw);
+  }
+  .total-row {
+    display: flex; align-items: center; justify-content: space-between;
+    color: var(--muted); font-size: 11px;
+  }
+  .total { color: var(--text); font: 650 11px/1 var(--mono); white-space: nowrap; }
+  .overall-track {
+    height: 3px; overflow: hidden; background: var(--surface-raised);
+    border-radius: var(--radius);
+  }
+  .overall-track i {
+    display: block; width: 0; height: 100%; background: var(--complete);
+    transition: width .25s cubic-bezier(.16, 1, .3, 1);
+  }
+  .header-actions { display: flex; align-items: center; gap: 7px; }
+  button {
+    min-height: 38px; border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 8px 12px; background: var(--surface); cursor: pointer;
+    font-size: 12px; font-weight: 650; white-space: nowrap;
+    transition: border-color .16s ease, background-color .16s ease, transform .12s ease;
+  }
+  button:hover { border-color: var(--line-strong); background: var(--surface-raised); }
+  button:active { transform: translateY(1px); }
+  button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+  #reset:hover { border-color: color-mix(in srgb, var(--danger) 65%, var(--line)); color: var(--danger); }
+
+  /* ---------- layout ---------- */
+  .shell {
+    width: min(100% - 32px, 1320px); min-height: calc(100dvh - 68px);
+    margin: 0 auto; padding: 28px 0 104px;
+    display: grid; grid-template-columns: 270px minmax(0, 1fr); gap: clamp(28px, 5vw, 72px);
+    align-items: start;
+  }
+
+  .phase-rail { position: sticky; top: 96px; min-width: 0; }
+  .rail-label {
+    margin: 0 0 13px; color: var(--faint); font: 650 10px/1 var(--mono);
+    letter-spacing: .12em; text-transform: uppercase;
+  }
+  nav.phases { display: flex; min-width: 0; max-width: 100%; flex-direction: column; gap: 4px; }
+  nav.phases button {
+    width: 100%; min-height: 48px; padding: 8px 10px;
+    display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 9px; align-items: center;
+    border-color: transparent; background: transparent; text-align: left;
+    color: var(--muted); font-size: 13px; font-weight: 560;
+  }
+  nav.phases button:hover { color: var(--text); background: var(--surface); }
+  nav.phases button[aria-current="true"] {
+    border-color: var(--line-strong); background: var(--surface-active); color: var(--text);
+    box-shadow: var(--shadow);
+  }
+  nav.phases .num {
+    display: grid; place-items: center; width: 28px; height: 28px;
+    border: 1px solid var(--line); border-radius: var(--radius);
+    color: var(--faint); font: 650 10px/1 var(--mono);
+  }
+  nav.phases button[aria-current="true"] .num {
+    border-color: var(--accent); color: var(--accent-strong);
+  }
+  nav.phases .pct { color: var(--faint); font: 600 10px/1 var(--mono); }
+  nav.phases button[data-complete="true"] .pct { color: var(--complete); }
+  .rail-note {
+    margin: 18px 10px 0; color: var(--faint); font-size: 11px; line-height: 1.5;
+  }
+  .rail-note kbd { margin: 0 2px; }
+
+  main { min-width: 0; }
+  .page-head {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(190px, 30%); gap: 24px;
+    align-items: end; margin: 4px 0 34px;
+    animation: enter .42s cubic-bezier(.16, 1, .3, 1) both;
+  }
+  .page-copy { min-width: 0; }
+  h1.page {
+    max-width: 780px; margin: 0;
+    font-size: clamp(34px, 4.4vw, 58px); line-height: .98; letter-spacing: -.045em;
+    font-weight: 640;
+  }
+  .lede { max-width: 62ch; margin: 14px 0 0; color: var(--muted); font-size: 14px; }
+  .phase-status {
+    display: grid; gap: 10px; align-self: center; padding: 15px 0 5px;
+  }
+  .phase-status-row {
+    display: flex; justify-content: space-between; gap: 14px;
+    color: var(--muted); font-size: 11px;
+  }
+  .phase-status-row strong { color: var(--text); font: 650 11px/1 var(--mono); }
+  .bar { height: 6px; overflow: hidden; margin: 0; background: var(--surface-raised); border-radius: var(--radius); }
+  .bar i {
+    display: block; width: 0; height: 100%; background: var(--complete);
+    transition: width .25s cubic-bezier(.16, 1, .3, 1);
+  }
+
+  /* ---------- sections ---------- */
+  section.grp {
+    display: grid; grid-template-columns: 170px minmax(0, 1fr); column-gap: 28px;
+    margin: 0 0 38px;
+    animation: enter .42s cubic-bezier(.16, 1, .3, 1) .04s both;
+  }
+  section.grp > h2 {
+    grid-column: 1; margin: 4px 0 0; color: var(--muted);
+    font-size: 12px; line-height: 1.35; font-weight: 650;
+  }
+  section.grp > h3 {
+    grid-column: 2; margin: 20px 0 8px; color: var(--text);
+    font-size: 13px; line-height: 1.4; font-weight: 680;
+  }
+  section.grp > h3:first-child { margin-top: 2px; }
+  section.grp > :not(h2):not(h3) { grid-column: 2; min-width: 0; }
+  .note {
+    margin: 10px 0; padding: 13px 15px;
+    border: 1px solid color-mix(in srgb, var(--condition) 42%, var(--line));
+    border-left: 3px solid var(--condition); border-radius: var(--radius);
+    background: color-mix(in srgb, var(--condition) 7%, var(--surface));
+    color: var(--text); font-size: 13px;
+  }
+  .para { max-width: 72ch; margin: 5px 0 14px; color: var(--muted); font-size: 13.5px; }
+
+  /* ---------- checklist ---------- */
+  ul.items {
+    list-style: none; margin: 0; padding: 0;
+    border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
+    background: var(--surface);
+  }
+  ul.items li + li { border-top: 1px solid var(--line); }
+  ul.items label {
+    display: grid; grid-template-columns: 24px minmax(150px, 1.05fr) minmax(140px, .9fr) minmax(90px, auto);
+    gap: 14px; align-items: center; min-height: 52px; padding: 9px 14px;
+    cursor: pointer; transition: background-color .14s ease;
+  }
+  ul.items label:hover { background: var(--surface-raised); }
+  ul.items input {
+    appearance: none; width: 20px; height: 20px; margin: 0;
+    border: 1.5px solid var(--line-strong); border-radius: calc(var(--radius) - 3px);
+    background: var(--bg); cursor: pointer; position: relative;
+    transition: border-color .14s ease, background-color .14s ease, transform .12s ease;
+  }
+  ul.items input:hover { border-color: var(--accent); transform: scale(1.04); }
+  ul.items input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  ul.items input:checked { background: var(--complete); border-color: var(--complete); }
+  ul.items input:checked::after {
+    content: ""; position: absolute; left: 6px; top: 2px; width: 5px; height: 10px;
+    border: solid var(--bg); border-width: 0 2px 2px 0; transform: rotate(45deg);
+  }
+  .ctl { color: var(--text); font: 590 12.5px/1.4 var(--mono); }
+  .ctl a {
+    text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 50%, transparent);
+    text-underline-offset: 3px;
+  }
+  .ctl a:hover { color: var(--accent-strong); text-decoration-color: currentColor; }
+  .act { color: var(--muted); font-size: 13px; }
+  .act b {
+    color: var(--accent-strong); font: 690 12px/1.4 var(--mono); letter-spacing: .015em;
+  }
+  .verb { color: var(--muted); }
+  .cond {
+    max-width: 220px; color: var(--condition); font: 560 11px/1.45 var(--mono);
+    text-align: right;
+  }
+  li[data-done="true"] { background: color-mix(in srgb, var(--complete) 5%, var(--surface)); }
+  li[data-done="true"] .ctl, li[data-done="true"] .act, li[data-done="true"] .cond { opacity: .5; }
+  li[data-done="true"] .act b { color: var(--complete); }
+
+  ol.steps {
+    margin: 0; padding: 0; list-style: none; counter-reset: s;
+    border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
+    background: var(--surface);
+  }
+  ol.steps li {
+    counter-increment: s; position: relative; min-height: 50px;
+    padding: 13px 16px 13px 52px; font-size: 13px;
+  }
+  ol.steps li + li { border-top: 1px solid var(--line); }
+  ol.steps li::before {
+    content: counter(s); position: absolute; left: 15px; top: 11px;
+    display: grid; place-items: center; width: 26px; height: 26px;
+    border: 1px solid var(--line); border-radius: var(--radius);
+    color: var(--muted); font: 650 10px/1 var(--mono);
+  }
+  ol.steps b { color: var(--accent-strong); font: 650 12px/1.4 var(--mono); }
+
+  /* ---------- matrix ---------- */
+  .scroll {
+    overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius);
+    background: var(--surface);
+  }
+  table.mx { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+  table.mx th, table.mx td { padding: 11px 13px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  table.mx thead th {
+    position: sticky; top: 0; background: var(--surface-raised); color: var(--muted);
+    font: 650 10px/1.3 var(--mono); letter-spacing: .06em; text-transform: uppercase;
+  }
+  table.mx tbody th { color: var(--text); font: 620 11.5px/1.4 var(--mono); }
+  table.mx td { color: var(--accent-strong); font: 560 11.5px/1.4 var(--mono); }
+  table.mx td.nil { color: var(--faint); }
+  table.mx td.soft { color: var(--condition); }
+  table.mx tr:last-child th, table.mx tr:last-child td { border-bottom: 0; }
+
+  /* ---------- ATC ---------- */
+  .atc-layout { display: grid; grid-template-columns: minmax(260px, .72fr) minmax(0, 1.45fr); gap: 34px; align-items: start; }
+  .atc-tools { position: sticky; top: 96px; min-width: 0; }
+  .atc-content { min-width: 0; }
+  .setup {
+    margin: 0; padding: 18px; border: 1px solid var(--line);
+    border-radius: var(--radius); background: var(--surface);
+    max-height: calc(100dvh - 120px); overflow: auto;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+  .setup h2 { margin: 0 0 14px; color: var(--text); font-size: 14px; }
+  .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+  .fields label { display: flex; flex-direction: column; gap: 5px; color: var(--muted); font-size: 11px; }
+  .fields input {
+    width: 100%; min-width: 0; min-height: 39px; padding: 8px 9px;
+    border: 1px solid var(--line); border-radius: var(--radius);
+    background: var(--bg); color: var(--text); font: 12px/1.3 var(--mono);
+  }
+  .fields input::placeholder { color: var(--faint); opacity: 1; }
+  .fields input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+  .chain {
+    display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 14px 0 0;
+    color: var(--muted); font: 10px/1.3 var(--mono);
+  }
+  .chain span { padding: 5px 7px; border: 1px solid var(--line); border-radius: var(--radius); }
+  .chain i { color: var(--faint); font-style: normal; }
+  .exchange { margin: 0 0 30px; }
+  .exchange h3 { margin: 0 0 10px; color: var(--text); font-size: 13px; font-weight: 680; }
+  .turn {
+    display: grid; grid-template-columns: 58px minmax(0, 1fr) 54px; gap: 10px; align-items: start;
+    padding: 6px 0;
+  }
+  .who {
+    padding-top: 11px; color: var(--muted); text-align: right;
+    font: 650 9.5px/1.5 var(--mono); letter-spacing: .06em; text-transform: uppercase;
+  }
+  .turn.you .who { color: var(--accent); }
+  .turn.atc .who { color: var(--condition); }
+  .say {
+    min-height: 42px; padding: 10px 12px; border: 1px solid var(--line);
+    border-radius: var(--radius); background: var(--surface); font-size: 13px;
+  }
+  .turn.you .say { border-left: 3px solid var(--accent); }
+  .turn.atc .say { border-left: 3px solid var(--condition); }
+  .say .tok {
+    padding: 1px 4px; border-radius: calc(var(--radius) - 3px);
+    background: color-mix(in srgb, var(--condition) 12%, transparent);
+    color: var(--condition); font: 560 12px/1.4 var(--mono);
+  }
+  .say .fill { color: var(--accent-strong); font: 650 12px/1.4 var(--mono); }
+  .copy { min-height: 34px; margin-top: 4px; padding: 6px 8px; color: var(--muted); font: 600 10px/1 var(--mono); }
+  .rb { display: block; color: var(--faint); font-size: 9px; font-weight: 520; text-transform: none; letter-spacing: 0; }
+
+  footer.tips {
+    width: min(100% - 32px, 1320px); margin: -56px auto 0; padding: 0 0 28px 342px;
+    display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--faint); font-size: 11px;
+  }
+  footer.tips span { white-space: nowrap; }
+  kbd {
+    display: inline-grid; min-width: 21px; min-height: 20px; place-items: center;
+    margin-right: 3px; padding: 2px 5px; border: 1px solid var(--line);
+    border-bottom-color: var(--line-strong); border-radius: calc(var(--radius) - 3px);
+    background: var(--surface); color: var(--muted); font: 600 10px/1 var(--mono);
+  }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  @keyframes enter {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 1040px) {
+    .shell { grid-template-columns: 1fr; gap: 28px; padding-top: 18px; }
+    .phase-rail {
+      position: sticky; top: 68px; z-index: 20; margin: 0 -16px;
+      padding: 10px 16px; background: var(--header-bg);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    }
+    .rail-label, .rail-note { display: none; }
+    nav.phases { flex-direction: row; gap: 6px; overflow-x: auto; scrollbar-width: thin; }
+    nav.phases button { width: auto; min-width: max-content; min-height: 42px; grid-template-columns: 26px auto auto; }
+    nav.phases .num { width: 26px; height: 26px; }
+    footer.tips { margin-top: -56px; padding-left: 0; }
+    .flight-total { width: min(210px, 24vw); }
+  }
+
+  @media (max-width: 760px) {
+    .hwrap { width: min(100% - 24px, 1320px); min-height: 62px; gap: 8px; }
+    .brand { min-width: 0; margin-right: auto; }
+    .brand-mark { width: 39px; height: 32px; }
+    .brand-copy small, .flight-total, #reset { display: none; }
+    .header-actions { margin-left: 0; }
+    button { min-height: 36px; padding: 7px 10px; }
+    .shell { width: min(100% - 24px, 1320px); padding: 12px 0 92px; }
+    .phase-rail { top: 62px; margin: 0 -12px; padding: 8px 12px; }
+    nav.phases button { min-height: 40px; padding: 6px 8px; font-size: 12px; }
+    .page-head { grid-template-columns: 1fr; gap: 18px; margin: 14px 0 30px; }
+    h1.page { font-size: clamp(34px, 11vw, 48px); }
+    .lede { margin-top: 11px; font-size: 13px; }
+    .phase-status { padding: 0; }
+    section.grp { grid-template-columns: 1fr; margin-bottom: 32px; }
+    section.grp > h2, section.grp > h3, section.grp > :not(h2):not(h3) { grid-column: 1; }
+    section.grp > h2 { margin: 0 0 9px; font-size: 13px; color: var(--text); }
+    section.grp > h3 { margin: 18px 0 8px; }
+    ul.items label {
+      grid-template-columns: 24px minmax(0, 1fr); column-gap: 11px; row-gap: 3px;
+      min-height: 58px; padding: 10px 11px; align-items: start;
+    }
+    ul.items input { grid-row: 1 / span 3; margin-top: 1px; }
+    ul.items .ctl, ul.items .act, ul.items .cond { grid-column: 2; }
+    ul.items .cond { max-width: none; text-align: left; }
+    .atc-layout { grid-template-columns: 1fr; gap: 32px; }
+    .atc-tools { position: static; }
+    .setup { max-height: none; overflow: visible; }
+    .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    footer.tips { width: min(100% - 24px, 1320px); }
+  }
+
+  @media (max-width: 520px) {
+    .brand-copy strong { max-width: 110px; line-height: 1.1; }
+    #theme { font-size: 11px; }
+    nav.phases .pct { display: none; }
+    .fields { grid-template-columns: 1fr; }
+    .turn { grid-template-columns: 44px minmax(0, 1fr); gap: 8px; }
+    .who { padding-top: 10px; }
+    .copy { grid-column: 2; justify-self: end; margin: -2px 0 2px; }
+    footer.tips { gap: 7px 14px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: .01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: .01ms !important;
+    }
+  }
+
+  @supports not (backdrop-filter: blur(1px)) {
+    header, .phase-rail { background: var(--bg); }
+  }
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to current phase</a>
+<header>
+  <div class="hwrap">
+    <a class="brand" href="#" aria-label="A32NX Flight Companion home">
+      <span class="brand-mark" aria-hidden="true">A32</span>
+      <span class="brand-copy">
+        <strong>Flight Companion</strong>
+        <small>FlyByWire A32NX procedures</small>
+      </span>
+    </a>
+    <div class="spacer"></div>
+    <div class="flight-total" aria-label="Overall flight progress">
+      <div class="total-row"><span>Flight progress</span><span class="total" id="total" aria-live="polite"></span></div>
+      <span class="overall-track" aria-hidden="true"><i id="overall-bar"></i></span>
+    </div>
+    <div class="header-actions">
+      <button id="reset" title="Clear every tick for a new flight">Reset flight</button>
+      <button id="theme" title="Switch color theme" aria-pressed="false">Light mode</button>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="phase-rail">
+    <p class="rail-label">Flight phases</p>
+    <nav class="phases" id="nav" aria-label="Flight phases"></nav>
+    <p class="rail-note"><kbd>J</kbd><kbd>K</kbd> move through checks<br><kbd>1</kbd>-<kbd>9</kbd> change phase</p>
+  </aside>
+  <main id="main" tabindex="-1"></main>
+</div>
+
+<footer class="tips">
+  <span><kbd>J</kbd><kbd>K</kbd> previous or next check</span>
+  <span><kbd>Space</kbd> mark complete</span>
+  <span><kbd>1</kbd>-<kbd>9</kbd> change phase</span>
+  <span>Progress saves in this browser</span>
+</footer>
+
+<script id="data" type="application/json">{"phases":[{"id":"1-starting-the-aircraft","num":"1","title":"1 · Starting the Aircraft","short":"Starting the Aircraft","lede":"Cold and dark to passengers boarding.","groups":[{"title":"Cockpit Preparation","level":2,"blocks":[{"type":"para","frag":[{"t":"text","v":"A sweep of the pedestal and front panel. Everything here should already be in position — you are confirming, not changing."}]},{"type":"items","items":[{"id":"1-starting-the-aircraft:1:PARK_BRK_handle:verify_ON","control":[{"t":"link","v":"PARK BRK","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/parking-brake/"},{"t":"text","v":" handle"}],"action":[{"t":"text","v":"verify "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":null},{"id":"1-starting-the-aircraft:2:SPEED_BRAKE_lever:verify_RET","control":[{"t":"link","v":"SPEED BRAKE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/speedbrake/"},{"t":"text","v":" lever"}],"action":[{"t":"text","v":"verify "},{"t":"b","v":"RET"}],"condition":null,"conditionLabel":null},{"id":"1-starting-the-aircraft:3:FLAPS_lever:verify_0","control":[{"t":"link","v":"FLAPS","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/flaps/"},{"t":"text","v":" lever"}],"action":[{"t":"text","v":"verify "},{"t":"b","v":"0"}],"condition":null,"conditionLabel":null},{"id":"1-starting-the-aircraft:4:WX_RADAR_MODE_selector:verify_OFF","control":[{"t":"link","v":"WX RADAR MODE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/radar/#mode-display-mode-selector"},{"t":"text","v":" selector"}],"action":[{"t":"text","v":"verify "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":null},{"id":"1-starting-the-aircraft:5:ENG_MASTER_1_&_2_switche:verify_OFF","control":[{"t":"link","v":"ENG MASTER 1 & 2","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/engine/#eng-master-1-2"},{"t":"text","v":" switches"}],"action":[{"t":"text","v":"verify "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":null},{"id":"1-starting-the-aircraft:6:ENG_MODE_selector:verify_NORM","control":[{"t":"link","v":"ENG MODE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/engine/#eng-mode-selector"},{"t":"text","v":" selector"}],"action":[{"t":"text","v":"verify "},{"t":"b","v":"NORM"}],"condition":null,"conditionLabel":null},{"id":"1-starting-the-aircraft:7:THRUST_levers:verify_IDLE","control":[{"t":"link","v":"THRUST","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/thrust-pitch-trim/"},{"t":"text","v":" levers"}],"action":[{"t":"text","v":"verify "},{"t":"b","v":"IDLE"}],"condition":null,"conditionLabel":null},{"id":"1-starting-the-aircraft:8:LANDING_GEAR_lever:verify_DOWN","control":[{"t":"link","v":"LANDING GEAR","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/front/autobrake-gear/"},{"t":"text","v":" lever"}],"action":[{"t":"text","v":"verify "},{"t":"b","v":"DOWN"}],"condition":null,"conditionLabel":null},{"id":"1-starting-the-aircraft:9:WIPER_selector:verify_OFF","control":[{"t":"link","v":"WIPER","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/wipers/"},{"t":"text","v":" selector"}],"action":[{"t":"text","v":"verify "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":null}]}]},{"title":"Overhead Panel","level":2,"blocks":[]},{"title":"Electrical","level":3,"blocks":[{"type":"items","items":[{"id":"1-starting-the-aircraft:10:BAT_1_&_2_pushbuttons:set_AUTO","control":[{"t":"link","v":"BAT 1 & 2","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/elec/#bat-1-2"},{"t":"text","v":" pushbuttons"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"AUTO"}],"condition":null,"conditionLabel":"Condition"},{"id":"1-starting-the-aircraft:11:BAT_1_&_2_charge:verify_below_60_","control":[{"t":"link","v":"BAT 1 & 2","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/elec/#bat-1-2"},{"t":"text","v":" charge"}],"action":[{"t":"text","v":"verify "},{"t":"b","v":"below 60 A and decreasing"}],"condition":[{"t":"text","v":"on the ECAM ELEC page, after 10 s"}],"conditionLabel":"Condition"},{"id":"1-starting-the-aircraft:12:EXT_PWR_pushbutton:set_ON","control":[{"t":"link","v":"EXT PWR","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/elec/#ext-pwr"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":[{"t":"text","v":"if AVAIL"}],"conditionLabel":"Condition"}]}]},{"title":"Auxiliary Power Unit (APU)","level":3,"blocks":[{"type":"items","items":[{"id":"1-starting-the-aircraft:13:APU_FIRE_TEST_pushbutton:press_and_hold_5","control":[{"t":"link","v":"APU FIRE TEST","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/fire/#apu-test"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"press and hold "},{"t":"b","v":"5 s"}],"condition":null,"conditionLabel":"Condition"},{"id":"1-starting-the-aircraft:14:APU_MASTER_SW_pushbutton:set_ON","control":[{"t":"link","v":"APU MASTER SW","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/apu/#master-sw"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":"Condition"},{"id":"1-starting-the-aircraft:15:APU_START_pushbutton:set_ON","control":[{"t":"link","v":"APU START","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/apu/#start"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":"Condition"},{"id":"1-starting-the-aircraft:16:APU_BLEED_pushbutton:set_ON","control":[{"t":"link","v":"APU BLEED","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ac/#apu-bleed"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":[{"t":"text","v":"once APU is AVAIL "}],"conditionLabel":"Condition"}]},{"type":"note","frag":[{"t":"text","v":"The original note read \"if COVID\" here. Per the SOP (*Preliminary Cockpit Preparation → Air Conditioning*) the condition is simply \"when the APU is available\" — with the caveat that you must not use APU bleed if an LP or HP ground air unit is connected."}]}]},{"title":"Oxygen","level":3,"blocks":[{"type":"items","items":[{"id":"1-starting-the-aircraft:17:CREW_SUPPLY_pushbutton:set_ON","control":[{"t":"link","v":"CREW SUPPLY","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/oxygen/#crew-supply"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":null}]}]},{"title":"Air Data Inertial Reference System (ADIRS)","level":3,"blocks":[{"type":"items","items":[{"id":"1-starting-the-aircraft:18:ADIR_1_&_2_&_3_selectors:set_NAV","control":[{"t":"link","v":"ADIR 1 & 2 & 3","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/adirs/"},{"t":"text","v":" selectors"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"NAV"}],"condition":null,"conditionLabel":null}]}]},{"title":"Lighting and Signs","level":3,"blocks":[{"type":"items","items":[{"id":"1-starting-the-aircraft:19:NAV_&_LOGO_switch:set_ON","control":[{"t":"link","v":"NAV & LOGO","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#nav-logo"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":null},{"id":"1-starting-the-aircraft:20:STROBE_switch:set_AUTO","control":[{"t":"link","v":"STROBE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#strobe"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"AUTO"}],"condition":null,"conditionLabel":null},{"id":"1-starting-the-aircraft:21:OVHD_INTEG_LT_brightness:adjust_to_BRT","control":[{"t":"link","v":"OVHD INTEG LT","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/int-lt/#ovhd-integ-lt"},{"t":"text","v":" brightness knob"}],"action":[{"t":"text","v":"adjust to "},{"t":"b","v":"BRT"}],"condition":null,"conditionLabel":null},{"id":"1-starting-the-aircraft:22:SEAT_BELTS_sign:set_ON","control":[{"t":"link","v":"SEAT BELTS","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/signs/#seat-belts"},{"t":"text","v":" sign"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":null},{"id":"1-starting-the-aircraft:23:NO_SMOKING_sign:set_AUTO","control":[{"t":"link","v":"NO SMOKING","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/signs/#no-smoking"},{"t":"text","v":" sign"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"AUTO"}],"condition":null,"conditionLabel":null},{"id":"1-starting-the-aircraft:24:EMER_EXIT_LT_selector:set_ARM","control":[{"t":"link","v":"EMER EXIT LT","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/signs/#emer-exit-lt"},{"t":"text","v":" selector"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ARM"}],"condition":null,"conditionLabel":null}]}]},{"title":"Air Conditioning and Pressurisation","level":3,"blocks":[{"type":"items","items":[{"id":"1-starting-the-aircraft:25:LDG_ELEV_knob:set_AUTO","control":[{"t":"link","v":"LDG ELEV","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/cab-press/#ldg-elev-sel"},{"t":"text","v":" knob"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"AUTO"}],"condition":null,"conditionLabel":"Condition"},{"id":"1-starting-the-aircraft:26:COCKPIT_/_FWD_CABIN_/_AF:adjust","control":[{"t":"link","v":"COCKPIT / FWD CABIN / AFT CABIN","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ac/#cockpit-fwd-cabin-aft-cabin"},{"t":"text","v":" knobs"}],"action":[{"t":"text","v":"adjust"}],"condition":[{"t":"text","v":"if needed"}],"conditionLabel":"Condition"}]}]},{"title":"Fuel","level":3,"blocks":[{"type":"items","items":[{"id":"1-starting-the-aircraft:27:L_TK_PUMPS_1_&_2_pushbut:set_ON","control":[{"t":"link","v":"L TK PUMPS 1 & 2","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/fuel/#l-r-tk-pumps-1-2"},{"t":"text","v":" pushbuttons"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":"Condition"},{"id":"1-starting-the-aircraft:28:R_TK_PUMPS_1_&_2_pushbut:set_ON","control":[{"t":"link","v":"R TK PUMPS 1 & 2","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/fuel/#l-r-tk-pumps-1-2"},{"t":"text","v":" pushbuttons"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":"Condition"},{"id":"1-starting-the-aircraft:29:FUEL_MODE_SEL_pushbutton:verify_AUTO","control":[{"t":"link","v":"FUEL MODE SEL","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/fuel/#mode-sel"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"verify "},{"t":"b","v":"AUTO"}],"condition":null,"conditionLabel":"Condition"},{"id":"1-starting-the-aircraft:30:CTR_TK_PUMP_1_&_2_pushbu:set_ON","control":[{"t":"link","v":"CTR TK PUMP 1 & 2","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/fuel/#ctr-tk-pump-1-2"},{"t":"text","v":" pushbuttons"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":"Condition"}]},{"type":"para","frag":[{"t":"text","v":"If the centre tank holds "},{"t":"b","v":"less than 200 kg / 440 lb"},{"t":"text","v":" for this flight, override the last two rows:"}]},{"type":"items","items":[{"id":"1-starting-the-aircraft:31:FUEL_MODE_SEL_pushbutton:set_MAN","control":[{"t":"link","v":"FUEL MODE SEL","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/fuel/#mode-sel"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"MAN"}],"condition":null,"conditionLabel":null},{"id":"1-starting-the-aircraft:32:CTR_TK_PUMP_1_&_2_pushbu:set_OFF","control":[{"t":"link","v":"CTR TK PUMP 1 & 2","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/fuel/#ctr-tk-pump-1-2"},{"t":"text","v":" pushbuttons"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":null}]}]},{"title":"Engine Fire Test","level":3,"blocks":[{"type":"items","items":[{"id":"1-starting-the-aircraft:33:ENG_1_&_2_FIRE_TEST_push:press_and_hold_5","control":[{"t":"link","v":"ENG 1 & 2 FIRE TEST","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/fire/#eng-1-2-test"},{"t":"text","v":" pushbuttons"}],"action":[{"t":"text","v":"press and hold "},{"t":"b","v":"5 s"}],"condition":null,"conditionLabel":null}]}]},{"title":"Main Panel","level":2,"blocks":[]},{"title":"Displays","level":3,"blocks":[{"type":"items","items":[{"id":"1-starting-the-aircraft:34:PFD_brightness_knob:adjust_to_BRT","control":[{"t":"link","v":"PFD","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/front/ilcp/#offbrt-knobs"},{"t":"text","v":" brightness knob"}],"action":[{"t":"text","v":"adjust to "},{"t":"b","v":"BRT"}],"condition":null,"conditionLabel":null},{"id":"1-starting-the-aircraft:35:ND_brightness_knob:adjust_to_BRT","control":[{"t":"link","v":"ND","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/front/ilcp/#offbrt-knobs"},{"t":"text","v":" brightness knob"}],"action":[{"t":"text","v":"adjust to "},{"t":"b","v":"BRT"}],"condition":null,"conditionLabel":null},{"id":"1-starting-the-aircraft:36:ECAM_UPPER_brightness_kn:adjust_to_BRT","control":[{"t":"link","v":"ECAM UPPER","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/ecam-control/#off-brt-knobs"},{"t":"text","v":" brightness knob"}],"action":[{"t":"text","v":"adjust to "},{"t":"b","v":"BRT"}],"condition":null,"conditionLabel":null},{"id":"1-starting-the-aircraft:37:ECAM_LOWER_brightness_kn:adjust_to_BRT","control":[{"t":"link","v":"ECAM LOWER","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/ecam-control/#off-brt-knobs"},{"t":"text","v":" brightness knob"}],"action":[{"t":"text","v":"adjust to "},{"t":"b","v":"BRT"}],"condition":null,"conditionLabel":null},{"id":"1-starting-the-aircraft:38:INTEG_LT_brightness_knob:adjust_to_BRT","control":[{"t":"link","v":"INTEG LT","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/lighting-capt/#integ-lt-main-pnl-and-ped-knob"},{"t":"text","v":" brightness knob"}],"action":[{"t":"text","v":"adjust to "},{"t":"b","v":"BRT"}],"condition":null,"conditionLabel":null}]},{"type":"para","frag":[{"t":"b","v":"Radio"},{"t":"text","v":" — no action."}]}]},{"title":"EFIS Control Panel","level":3,"blocks":[{"type":"items","items":[{"id":"1-starting-the-aircraft:39:BARO_REF:set","control":[{"t":"link","v":"BARO REF","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/efis_control/#barometer-reference-display-window"}],"action":[{"t":"text","v":"set"}],"condition":[{"t":"text","v":"flyPad / Dispatch"}],"conditionLabel":"Source"},{"id":"1-starting-the-aircraft:40:FD_pushbutton:set_ON","control":[{"t":"link","v":"FD","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/efis_control/#fd-pushbutton"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":"Source"}]}]},{"title":"ECAM","level":3,"blocks":[{"type":"items","items":[{"id":"1-starting-the-aircraft:41:FOB:verify","control":[{"t":"link","v":"FOB","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/ecam/ecam-e-wd/"}],"action":[{"t":"text","v":"verify"}],"condition":null,"conditionLabel":null}]}]},{"title":"Boarding Passengers","level":2,"blocks":[{"type":"steps","items":[[{"t":"text","v":"Open "},{"t":"b","v":"flyPad / Ground / Services"},{"t":"text","v":"."}],[{"t":"text","v":"Request the baggage truck."}],[{"t":"text","v":"Request the jet bridge."}],[{"t":"text","v":"Request any other services required."}],[{"t":"text","v":"Start boarding passengers."}]]},{"type":"note","frag":[{"t":"text","v":"flyPad: perform the "},{"t":"b","v":"COCKPIT PREPARATION"},{"t":"text","v":" checklist."}]}]}]},{"id":"2-preparing-the-mcdu","num":"2","title":"2 · Preparing the MCDU","short":"Preparing the MCDU","lede":"Walk the MCDU pages in order. Most of it comes in from the SimBrief OFP, so the work is mainly verifying what arrived.","groups":[{"title":"","level":2,"blocks":[{"type":"para","frag":[{"t":"text","v":"Flight plan and charts: "},{"t":"link","v":"SimBrief","href":"https://www.simbrief.com/"},{"t":"text","v":" · "},{"t":"link","v":"ChartFox","href":"http://chartfox.org/"}]}]},{"title":"Import the SimBrief OFP","level":2,"blocks":[{"type":"items","items":[{"id":"2-preparing-the-mcdu:42:MCDU_MENU_/_ATSU_/_AOC_M:select_INIT/PRES","control":[{"t":"link","v":"MCDU MENU / ATSU / AOC MENU","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/mcdu-menu/#aoc-menu-page"}],"action":[{"t":"text","v":"select "},{"t":"b","v":"INIT/PRES"},{"t":"text","v":" → "},{"t":"b","v":"INIT DATA REQ"}],"condition":null,"conditionLabel":null}]}]},{"title":"INIT A","level":2,"blocks":[{"type":"items","items":[{"id":"2-preparing-the-mcdu:43:INIT_REQUEST:select_to_auto-p","control":[{"t":"link","v":"INIT REQUEST","href":"https://docs.flybywiresim.com/aircraft/a32nx/feature-guides/simbrief/#initialize-flight-plan"}],"action":[{"t":"text","v":"select to auto-populate"}],"condition":null,"conditionLabel":null},{"id":"2-preparing-the-mcdu:44:CRZ_FL:verify_set","control":[{"t":"link","v":"CRZ FL","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/init/#init-a"}],"action":[{"t":"text","v":"verify set"}],"condition":null,"conditionLabel":null}]}]},{"title":"F-PLN","level":2,"blocks":[{"type":"items","items":[{"id":"2-preparing-the-mcdu:45:DEPARTURE:set_as_planned","control":[{"t":"link","v":"DEPARTURE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/f-pln/#departure-page"}],"action":[{"t":"text","v":"set as planned"}],"condition":null,"conditionLabel":null},{"id":"2-preparing-the-mcdu:46:ARRIVAL:set_as_planned","control":[{"t":"link","v":"ARRIVAL","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/f-pln/#arrival-page"}],"action":[{"t":"text","v":"set as planned"}],"condition":null,"conditionLabel":null},{"id":"2-preparing-the-mcdu:47:Discontinuities:clear_if_any","control":[{"t":"text","v":"Discontinuities"}],"action":[{"t":"text","v":"clear if any"}],"condition":null,"conditionLabel":null},{"id":"2-preparing-the-mcdu:48:ND_mode_selector:verify_PLAN_to_w","control":[{"t":"link","v":"ND mode","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/efis_control/"},{"t":"text","v":" selector"}],"action":[{"t":"text","v":"verify "},{"t":"b","v":"PLAN"},{"t":"text","v":" to walk the route"}],"condition":null,"conditionLabel":null}]}]},{"title":"INIT B / FUEL PRED","level":2,"blocks":[{"type":"items","items":[{"id":"2-preparing-the-mcdu:49:BLOCK:set_as_loaded","control":[{"t":"link","v":"BLOCK","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/init/#init-b"}],"action":[{"t":"text","v":"set as loaded"}],"condition":null,"conditionLabel":null},{"id":"2-preparing-the-mcdu:50:ZFW_/_ZFWCG:select_to_auto-p","control":[{"t":"link","v":"ZFW / ZFWCG","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/init/#init-b"}],"action":[{"t":"text","v":"select to auto-populate"}],"condition":null,"conditionLabel":null}]}]},{"title":"PERF — Takeoff","level":2,"blocks":[{"type":"para","frag":[{"t":"text","v":"Calculate the numbers in "},{"t":"b","v":"flyPad / Performance / Takeoff"},{"t":"text","v":" first, then enter them:"}]},{"type":"items","items":[{"id":"2-preparing-the-mcdu:51:T.O_SHIFT:set","control":[{"t":"link","v":"T.O SHIFT","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/perf/#take-off"}],"action":[{"t":"text","v":"set"}],"condition":[{"t":"text","v":"as required — intersection departure"}],"conditionLabel":"Condition"},{"id":"2-preparing-the-mcdu:52:V1:set","control":[{"t":"link","v":"V1","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/perf/#take-off"}],"action":[{"t":"text","v":"set"}],"condition":null,"conditionLabel":"Condition"},{"id":"2-preparing-the-mcdu:53:VR:set","control":[{"t":"link","v":"VR","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/perf/#take-off"}],"action":[{"t":"text","v":"set"}],"condition":null,"conditionLabel":"Condition"},{"id":"2-preparing-the-mcdu:54:V2:set","control":[{"t":"link","v":"V2","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/perf/#take-off"}],"action":[{"t":"text","v":"set"}],"condition":null,"conditionLabel":"Condition"},{"id":"2-preparing-the-mcdu:55:FLEX_TO_TEMP:set","control":[{"t":"link","v":"FLEX TO TEMP","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/perf/#take-off"}],"action":[{"t":"text","v":"set"}],"condition":null,"conditionLabel":"Condition"},{"id":"2-preparing-the-mcdu:56:THR_RED/ACC:set_or_verify","control":[{"t":"link","v":"THR RED/ACC","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/perf/#take-off"}],"action":[{"t":"text","v":"set or verify"}],"condition":null,"conditionLabel":"Condition"},{"id":"2-preparing-the-mcdu:57:ENG_OUT_ACC:set_or_verify","control":[{"t":"link","v":"ENG OUT ACC","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/perf/#take-off"}],"action":[{"t":"text","v":"set or verify"}],"condition":[{"t":"text","v":"as required"}],"conditionLabel":"Condition"},{"id":"2-preparing-the-mcdu:58:FLAPS/THS:set","control":[{"t":"link","v":"FLAPS/THS","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/perf/#take-off"}],"action":[{"t":"text","v":"set"}],"condition":[{"t":"text","v":"takeoff flaps and trim reminder"}],"conditionLabel":"Condition"}]}]},{"title":"Pages with no action","level":2,"blocks":[{"type":"para","frag":[{"t":"b","v":"DATA"},{"t":"text","v":" · "},{"t":"b","v":"SEC F-PLN"},{"t":"text","v":" · "},{"t":"b","v":"RAD NAV"},{"t":"text","v":" — RAD NAV should already be populated from the flight plan, so verify rather than type."}]}]},{"title":"Clearance","level":2,"blocks":[{"type":"para","frag":[{"t":"text","v":"Request IFR clearance from Delivery — see "},{"t":"text","v":"ATC Communications › Clearance Delivery"},{"t":"text","v":"."}]},{"type":"note","frag":[{"t":"text","v":"flyPad: perform the "},{"t":"b","v":"BEFORE START"},{"t":"text","v":" checklist."}]}]}]},{"id":"3-engine-start-and-taxi","num":"3","title":"3 · Engine Start and Taxi","short":"Engine Start and Taxi","lede":null,"groups":[{"title":"Before Pushback","level":2,"blocks":[{"type":"para","frag":[{"t":"text","v":"Close all doors in "},{"t":"b","v":"flyPad / Ground / Services"},{"t":"text","v":", then move the aircraft onto its own power:"}]},{"type":"items","items":[{"id":"3-engine-start-and-taxi:59:EXT_PWR_pushbutton:set_OFF","control":[{"t":"link","v":"EXT PWR","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/elec/#ext-pwr"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":null},{"id":"3-engine-start-and-taxi:60:APU_BLEED_pushbutton:set_ON","control":[{"t":"link","v":"APU BLEED","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ac/#apu-bleed"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":null},{"id":"3-engine-start-and-taxi:61:BEACON_switch:set_ON","control":[{"t":"link","v":"BEACON","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#beacon"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":null}]},{"type":"note","frag":[{"t":"text","v":"BEACON goes ON at start clearance — before anything moves or turns — not at takeoff. It is the \"stay clear\" signal to ground crew."}]}]},{"title":"Pushback","level":2,"blocks":[{"type":"steps","items":[[{"t":"text","v":"Request pushback clearance — "},{"t":"text","v":"ATC Communications › Ground"},{"t":"text","v":"."}],[{"t":"text","v":"Control the pushback from "},{"t":"b","v":"flyPad / Ground / Pushback"},{"t":"text","v":"."}]]}]},{"title":"Engine Start","level":2,"blocks":[{"type":"items","items":[{"id":"3-engine-start-and-taxi:62:ENG_MODE_selector:set_IGN/START","control":[{"t":"link","v":"ENG MODE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/engine/#eng-mode-selector"},{"t":"text","v":" selector"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"IGN/START"}],"condition":[{"t":"b","v":"COOLING"},{"t":"text","v":" on the E/WD"}],"conditionLabel":"Wait for"},{"id":"3-engine-start-and-taxi:63:ENG_MASTER_2_switch:set_ON","control":[{"t":"link","v":"ENG MASTER 2","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/engine/#eng-master-1-2"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":[{"t":"b","v":"AVAIL"}],"conditionLabel":"Wait for"},{"id":"3-engine-start-and-taxi:64:ENG_MASTER_1_switch:set_ON","control":[{"t":"link","v":"ENG MASTER 1","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/engine/#eng-master-1-2"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":[{"t":"b","v":"AVAIL"}],"conditionLabel":"Wait for"}]},{"type":"note","frag":[{"t":"text","v":"Engine "},{"t":"b","v":"2 starts first"},{"t":"text","v":", then engine 1 — starting 2 first pressurises the yellow hydraulic system. At idle, expect roughly 19 % N1, 68 % N2, 520 °C EGT."}]}]},{"title":"After Engine Start","level":2,"blocks":[{"type":"items","items":[{"id":"3-engine-start-and-taxi:65:ENG_MODE_selector:set_NORM","control":[{"t":"link","v":"ENG MODE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/engine/#eng-mode-selector"},{"t":"text","v":" selector"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"NORM"}],"condition":null,"conditionLabel":"Condition"},{"id":"3-engine-start-and-taxi:66:FLAPS_lever:set_as_planned","control":[{"t":"link","v":"FLAPS","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/flaps/"},{"t":"text","v":" lever"}],"action":[{"t":"text","v":"set as planned"}],"condition":null,"conditionLabel":"Condition"},{"id":"3-engine-start-and-taxi:67:SPEED_BRAKE_lever:set_ARM","control":[{"t":"link","v":"SPEED BRAKE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/speedbrake/"},{"t":"text","v":" lever"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ARM"}],"condition":null,"conditionLabel":"Condition"},{"id":"3-engine-start-and-taxi:68:APU_BLEED_pushbutton:set_OFF","control":[{"t":"link","v":"APU BLEED","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ac/#apu-bleed"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":"Condition"},{"id":"3-engine-start-and-taxi:69:APU_MASTER_SW_pushbutton:set_OFF","control":[{"t":"link","v":"APU MASTER SW","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/apu/#master-sw"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":"Condition"},{"id":"3-engine-start-and-taxi:70:ENG_ANTI_ICE_pushbutton:set","control":[{"t":"link","v":"ENG ANTI ICE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/anti-ice/#eng-1-2"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set"}],"condition":[{"t":"text","v":"as required"}],"conditionLabel":"Condition"},{"id":"3-engine-start-and-taxi:71:WING_ANTI_ICE_pushbutton:set","control":[{"t":"link","v":"WING ANTI ICE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/anti-ice/#wing-anti-ice"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set"}],"condition":[{"t":"text","v":"as required"}],"conditionLabel":"Condition"},{"id":"3-engine-start-and-taxi:72:PITCH_TRIM_handwheel:check","control":[{"t":"link","v":"PITCH TRIM","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/thrust-pitch-trim/#pitch-trim-wheel"},{"t":"text","v":" handwheel"}],"action":[{"t":"text","v":"check"}],"condition":null,"conditionLabel":"Condition"},{"id":"3-engine-start-and-taxi:73:RUD_TRIM_indication:verify_ZERO","control":[{"t":"link","v":"RUD TRIM","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/rudder-trim/"},{"t":"text","v":" indication"}],"action":[{"t":"text","v":"verify "},{"t":"b","v":"ZERO"}],"condition":null,"conditionLabel":"Condition"}]},{"type":"para","frag":[{"t":"text","v":"Then check the flight controls: press the "},{"t":"link","v":"F/CTL","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/ecam-control/#system-page-buttons"},{"t":"text","v":" pushbutton on the ECAM control panel and sweep the sidestick and rudder through full travel."}]},{"type":"note","frag":[{"t":"text","v":"Allow "},{"t":"b","v":"5 minutes between engine start and takeoff"},{"t":"text","v":" to avoid thermal shock. Taxi time counts toward it, so this rarely holds you up."}]},{"type":"note","frag":[{"t":"text","v":"flyPad: perform the "},{"t":"b","v":"AFTER START"},{"t":"text","v":" checklist."}]}]},{"title":"Taxi","level":2,"blocks":[{"type":"para","frag":[{"t":"text","v":"Request taxi clearance, then:"}]},{"type":"items","items":[{"id":"3-engine-start-and-taxi:74:RWY_TURN_OFF_switch:set_ON","control":[{"t":"link","v":"RWY TURN OFF","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#rwy-turn-off"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":null},{"id":"3-engine-start-and-taxi:75:NOSE_switch:set_TAXI","control":[{"t":"link","v":"NOSE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#nose"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"TAXI"}],"condition":null,"conditionLabel":null},{"id":"3-engine-start-and-taxi:76:PARK_BRK_handle:set_OFF","control":[{"t":"link","v":"PARK BRK","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/parking-brake/"},{"t":"text","v":" handle"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":null}]},{"type":"note","frag":[{"t":"text","v":"flyPad: perform the "},{"t":"b","v":"TAXI"},{"t":"text","v":" checklist."}]}]}]},{"id":"4-takeoff-climb-and-cruise","num":"4","title":"4 · Takeoff, Climb and Cruise","short":"Takeoff, Climb and Cruise","lede":null,"groups":[{"title":"Down to the Line","level":2,"blocks":[{"type":"para","frag":[{"t":"text","v":"Holding short, before takeoff clearance. All of this can be done while you wait."}]},{"type":"items","items":[{"id":"4-takeoff-climb-and-cruise:77:PARK_BRK_handle:set_ON","control":[{"t":"link","v":"PARK BRK","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/parking-brake/"},{"t":"text","v":" handle"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":[{"t":"text","v":"at the holding point"}],"conditionLabel":"Condition"},{"id":"4-takeoff-climb-and-cruise:78:ALT_selector:verify_cleared_a","control":[{"t":"link","v":"ALT","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/fcu/#altitude-selector-knob-inner-and-outer"},{"t":"text","v":" selector"}],"action":[{"t":"text","v":"verify "},{"t":"b","v":"cleared altitude"}],"condition":null,"conditionLabel":"Condition"},{"id":"4-takeoff-climb-and-cruise:79:SYS_switch:verify_1","control":[{"t":"link","v":"SYS","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/radar/#radar"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"verify "},{"t":"b","v":"1"}],"condition":null,"conditionLabel":"Condition"},{"id":"4-takeoff-climb-and-cruise:80:PWS_switch:verify_AUTO","control":[{"t":"link","v":"PWS","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/radar/#pws"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"verify "},{"t":"b","v":"AUTO"}],"condition":null,"conditionLabel":"Condition"},{"id":"4-takeoff-climb-and-cruise:81:ATC_mode_selector:verify_AUTO_or_O","control":[{"t":"link","v":"ATC mode","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/atc-tcas/#mode-selector"},{"t":"text","v":" selector"}],"action":[{"t":"text","v":"verify "},{"t":"b","v":"AUTO"},{"t":"text","v":" or "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":"Condition"},{"id":"4-takeoff-climb-and-cruise:82:ALT_RPTG_switch:verify_ON","control":[{"t":"link","v":"ALT RPTG","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/atc-tcas/#alt-rptg-switch"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"verify "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":"Condition"},{"id":"4-takeoff-climb-and-cruise:83:AUTO/BRK:verify_MAX","control":[{"t":"link","v":"AUTO/BRK","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/front/autobrake-gear/#autobrk"}],"action":[{"t":"text","v":"verify "},{"t":"b","v":"MAX"}],"condition":null,"conditionLabel":"Condition"},{"id":"4-takeoff-climb-and-cruise:84:CALLS_ALL_pushbutton:press","control":[{"t":"link","v":"CALLS ALL","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/calls/#all"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"press"}],"condition":[{"t":"text","v":"cabin crew advisory"}],"conditionLabel":"Condition"},{"id":"4-takeoff-climb-and-cruise:85:T.O_CONFIG_pushbutton:press_to_TEST","control":[{"t":"link","v":"T.O CONFIG","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/ecam-control/#to-config"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"press to "},{"t":"b","v":"TEST"}],"condition":[{"t":"text","v":"expect no warning"}],"conditionLabel":"Condition"}]},{"type":"para","frag":[{"t":"text","v":"Then request takeoff clearance — "},{"t":"text","v":"ATC Communications › Tower, departure"},{"t":"text","v":"."}]},{"type":"note","frag":[{"t":"text","v":"flyPad: perform the "},{"t":"b","v":"LINE-UP"},{"t":"text","v":" checklist."}]}]},{"title":"Below the Line","level":2,"blocks":[{"type":"para","frag":[{"t":"text","v":"After takeoff clearance."}]},{"type":"items","items":[{"id":"4-takeoff-climb-and-cruise:86:PACK_1_&_2:set_OFF","control":[{"t":"link","v":"PACK 1 & 2","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ac/#pack-1-2"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":[{"t":"text","v":"improves TOGA performance "}],"conditionLabel":"Condition"},{"id":"4-takeoff-climb-and-cruise:87:RWY_TURN_OFF_switch:set_ON","control":[{"t":"link","v":"RWY TURN OFF","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#rwy-turn-off"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":"Condition"},{"id":"4-takeoff-climb-and-cruise:88:NOSE_switch:set_T.O.","control":[{"t":"link","v":"NOSE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#nose"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"T.O."}],"condition":null,"conditionLabel":"Condition"},{"id":"4-takeoff-climb-and-cruise:89:LAND_L_&_R_switches:set_both_ON","control":[{"t":"link","v":"LAND L & R","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#land-l-r"},{"t":"text","v":" switches"}],"action":[{"t":"text","v":"set both "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":"Condition"},{"id":"4-takeoff-climb-and-cruise:90:STROBE_switch:set_ON","control":[{"t":"link","v":"STROBE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#strobe"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":"Condition"},{"id":"4-takeoff-climb-and-cruise:91:NAV_&_LOGO_switch:set_ON","control":[{"t":"link","v":"NAV & LOGO","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#nav-logo"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":"Condition"},{"id":"4-takeoff-climb-and-cruise:92:WING_switch:set_OFF","control":[{"t":"link","v":"WING","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#wing"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":"Condition"},{"id":"4-takeoff-climb-and-cruise:93:TCAS_mode_selector:set_TA/RA","control":[{"t":"link","v":"TCAS mode","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/atc-tcas/#tcas-mode"},{"t":"text","v":" selector"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"TA/RA"}],"condition":null,"conditionLabel":"Condition"}]},{"type":"note","frag":[{"t":"text","v":"The SOP recommends packs OFF *or* APU bleed ON for takeoff — both reduce takeoff EGT. Do not use APU bleed if wing anti-ice is on. The packs go back ON at thrust reduction altitude, below."}]}]},{"title":"Taking Off","level":2,"blocks":[{"type":"steps","items":[[{"t":"link","v":"PARK BRK","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/parking-brake/"},{"t":"text","v":" handle — set "},{"t":"b","v":"OFF"},{"t":"text","v":"."}],[{"t":"text","v":"Hold the manual brakes down."}],[{"t":"link","v":"THRUST","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/thrust-pitch-trim/"},{"t":"text","v":" levers — set "},{"t":"b","v":"50 %"},{"t":"text","v":", wait for both engines to stabilise."}],[{"t":"text","v":"Release the manual brakes."}],[{"t":"link","v":"THRUST","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/thrust-pitch-trim/"},{"t":"text","v":" levers — set "},{"t":"b","v":"TOGA"},{"t":"text","v":"."}],[{"t":"text","v":"At "},{"t":"b","v":"VR"},{"t":"text","v":", pull the sidestick."}],[{"t":"link","v":"LANDING GEAR","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/front/autobrake-gear/"},{"t":"text","v":" lever — set "},{"t":"b","v":"UP"},{"t":"text","v":" once positive rate is established."}]]}]},{"title":"Initial Climb","level":2,"blocks":[{"type":"items","items":[{"id":"4-takeoff-climb-and-cruise:94:THRUST_levers:set_CL","control":[{"t":"link","v":"THRUST","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/thrust-pitch-trim/"},{"t":"text","v":" levers"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"CL"}],"condition":[{"t":"text","v":"flashing "},{"t":"b","v":"LVR CLB"},{"t":"text","v":", around 1,500 ft AGL"}],"conditionLabel":"Trigger"},{"id":"4-takeoff-climb-and-cruise:95:PACK_1_&_2:set_ON","control":[{"t":"link","v":"PACK 1 & 2","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ac/#pack-1-2"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":[{"t":"text","v":"PACK 2 at least 10 s after PACK 1"}],"conditionLabel":"Trigger"},{"id":"4-takeoff-climb-and-cruise:96:AP_1_pushbutton:press","control":[{"t":"link","v":"AP 1","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/fcu/#ap1-ap2-pushbuttons"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"press"}],"condition":[{"t":"text","v":"any time above 100 ft AGL"}],"conditionLabel":"Trigger"},{"id":"4-takeoff-climb-and-cruise:97:FLAPS_lever:set_0","control":[{"t":"link","v":"FLAPS","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/flaps/"},{"t":"text","v":" lever"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"0"}],"condition":[{"t":"text","v":"at "},{"t":"b","v":"S speed"}],"conditionLabel":"Trigger"},{"id":"4-takeoff-climb-and-cruise:98:RWY_TURN_OFF_switch:set_OFF","control":[{"t":"link","v":"RWY TURN OFF","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#rwy-turn-off"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":"Trigger"},{"id":"4-takeoff-climb-and-cruise:99:NOSE_switch:set_OFF","control":[{"t":"link","v":"NOSE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#nose"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":"Trigger"},{"id":"4-takeoff-climb-and-cruise:100:SPEED_BRAKE_lever:set_RET","control":[{"t":"link","v":"SPEED BRAKE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/speedbrake/"},{"t":"text","v":" lever"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"RET"}],"condition":null,"conditionLabel":"Trigger"},{"id":"4-takeoff-climb-and-cruise:101:BARO_REF:set_STD","control":[{"t":"link","v":"BARO REF","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/efis_control/#barometer-reference-display-window"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"STD"}],"condition":[{"t":"text","v":"when flashing on the PFD"}],"conditionLabel":"Trigger"}]}]},{"title":"Passing 10,000 ft","level":2,"blocks":[{"type":"items","items":[{"id":"4-takeoff-climb-and-cruise:102:ALT_selector:set_cleared_alti","control":[{"t":"link","v":"ALT","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/fcu/#altitude-selector-knob-inner-and-outer"},{"t":"text","v":" selector"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"cleared altitude"}],"condition":null,"conditionLabel":"Condition"},{"id":"4-takeoff-climb-and-cruise:103:LAND_L_&_R_switches:set_OFF","control":[{"t":"link","v":"LAND L & R","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#land-l-r"},{"t":"text","v":" switches"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":"Condition"},{"id":"4-takeoff-climb-and-cruise:104:SEAT_BELTS_sign:set","control":[{"t":"link","v":"SEAT BELTS","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/signs/#seat-belts"},{"t":"text","v":" sign"}],"action":[{"t":"text","v":"set"}],"condition":[{"t":"text","v":"as required"}],"conditionLabel":"Condition"}]}]},{"title":"Cruise","level":2,"blocks":[{"type":"para","frag":[{"t":"text","v":"Nothing to do. Monitor fuel, watch for the next "},{"t":"text","v":"Center handoff"},{"t":"text","v":", and start "},{"t":"text","v":"descent planning"},{"t":"text","v":" before top of descent."}]}]}]},{"id":"5-descent-approach-and-landing","num":"5","title":"5 · Descent, Approach and Landing","short":"Descent, Approach and Landing","lede":null,"groups":[{"title":"Descent and Approach Planning","level":2,"blocks":[{"type":"para","frag":[{"t":"text","v":"Do this well before top of descent."}]},{"type":"items","items":[{"id":"5-descent-approach-and-landing:105:Top_of_descent:calculate_the_re","control":[{"t":"text","v":"Top of descent"}],"action":[{"t":"text","v":"calculate the required distance in "},{"t":"b","v":"flyPad / Performance / Top of Descent"}],"condition":null,"conditionLabel":null},{"id":"5-descent-approach-and-landing:106:MCDU_MENU_/_ATSU_/_AOC_M:select_SEND","control":[{"t":"link","v":"MCDU MENU / ATSU / AOC MENU / ATIS","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/mcdu-menu/#atis-page"}],"action":[{"t":"text","v":"select "},{"t":"b","v":"SEND"}],"condition":null,"conditionLabel":null},{"id":"5-descent-approach-and-landing:107:MCDU_MENU_/_ATSU_/_AOC_M:select_RECEIVED_","control":[{"t":"link","v":"MCDU MENU / ATSU / AOC MENU","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/mcdu-menu/#aoc-menu-page"}],"action":[{"t":"text","v":"select "},{"t":"b","v":"RECEIVED MESSAGES"},{"t":"text","v":" → "},{"t":"b","v":"PRINT"}],"condition":null,"conditionLabel":null},{"id":"5-descent-approach-and-landing:108:MCDU_/_PERF:fill_the_APPROAC","control":[{"t":"link","v":"MCDU / PERF","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/perf/#approach"}],"action":[{"t":"text","v":"fill the "},{"t":"b","v":"APPROACH"},{"t":"text","v":" page"}],"condition":null,"conditionLabel":null}]}]},{"title":"At Top of Descent","level":2,"blocks":[{"type":"para","frag":[{"t":"text","v":"Request descent clearance — "},{"t":"text","v":"ATC Communications › Centre"},{"t":"text","v":" — then:"}]},{"type":"items","items":[{"id":"5-descent-approach-and-landing:109:ALT_selector:set_cleared_leve","control":[{"t":"link","v":"ALT","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/fcu/#altitude-selector-knob-inner-and-outer"},{"t":"text","v":" selector"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"cleared level"}],"condition":null,"conditionLabel":null},{"id":"5-descent-approach-and-landing:110:ALT_selector:push_for_managed","control":[{"t":"link","v":"ALT","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/fcu/#altitude-selector-knob-inner-and-outer"},{"t":"text","v":" selector"}],"action":[{"t":"text","v":"push for "},{"t":"b","v":"managed altitude"}],"condition":null,"conditionLabel":null}]}]},{"title":"Passing 10,000 ft","level":2,"blocks":[{"type":"items","items":[{"id":"5-descent-approach-and-landing:111:LAND_L_&_R_switches:set_both_ON","control":[{"t":"link","v":"LAND L & R","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#land-l-r"},{"t":"text","v":" switches"}],"action":[{"t":"text","v":"set both "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":"Condition"},{"id":"5-descent-approach-and-landing:112:SEAT_BELTS_sign:set_ON","control":[{"t":"link","v":"SEAT BELTS","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/signs/#seat-belts"},{"t":"text","v":" sign"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":"Condition"},{"id":"5-descent-approach-and-landing:113:CSTR_pushbutton:press","control":[{"t":"link","v":"CSTR","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/efis_control/"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"press"}],"condition":[{"t":"text","v":"both sides "}],"conditionLabel":"Condition"},{"id":"5-descent-approach-and-landing:114:LS_pushbutton:press","control":[{"t":"link","v":"LS","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/efis_control/#ls-pushbutton"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"press"}],"condition":null,"conditionLabel":"Condition"},{"id":"5-descent-approach-and-landing:115:MCDU_/_RAD_NAV:verify_LS/FREQ","control":[{"t":"link","v":"MCDU / RAD NAV","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/rad-nav/"}],"action":[{"t":"text","v":"verify "},{"t":"b","v":"LS/FREQ"}],"condition":null,"conditionLabel":"Condition"}]},{"type":"note","frag":[{"t":"text","v":"The original note called this \"CSR\". The button is labelled "},{"t":"b","v":"CSTR"},{"t":"text","v":" (constraints) on the EFIS control panel."}]},{"type":"note","frag":[{"t":"text","v":"flyPad: perform the "},{"t":"b","v":"APPROACH"},{"t":"text","v":" checklist."}]}]},{"title":"Flying the STAR","level":2,"blocks":[{"type":"items","items":[{"id":"5-descent-approach-and-landing:116:CALLS_ALL_pushbutton:press_—_cabin_cr","control":[{"t":"link","v":"CALLS ALL","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/calls/#all"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"press — cabin crew advisory"}],"condition":null,"conditionLabel":null}]}]},{"title":"Intercepting the ILS","level":2,"blocks":[{"type":"para","frag":[{"t":"text","v":"Set up the approach once you are cleared for it and established on the intercept trajectory:"}]},{"type":"items","items":[{"id":"5-descent-approach-and-landing:117:MCDU_/_PERF:activate_the_APP","control":[{"t":"link","v":"MCDU / PERF","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/mcdu/perf/#approach"}],"action":[{"t":"text","v":"activate the "},{"t":"b","v":"APPR"},{"t":"text","v":" phase"}],"condition":[{"t":"text","v":"automatic in NAV over the DECEL point; else about 15 NM out"}],"conditionLabel":"Condition"},{"id":"5-descent-approach-and-landing:118:SPD_knob:push_for_managed","control":[{"t":"link","v":"SPD","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/fcu/#spdmach-button"},{"t":"text","v":" knob"}],"action":[{"t":"text","v":"push for "},{"t":"b","v":"managed speed"}],"condition":null,"conditionLabel":"Condition"},{"id":"5-descent-approach-and-landing:119:APPR_pushbutton:press","control":[{"t":"link","v":"APPR","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/fcu/#appr"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"press"}],"condition":[{"t":"text","v":"cleared for approach, LOC deviation available"}],"conditionLabel":"Condition"},{"id":"5-descent-approach-and-landing:120:AP_1_and_AP_2:engage_both","control":[{"t":"link","v":"AP 1","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/fcu/#ap1-ap2-pushbuttons"},{"t":"text","v":" and "},{"t":"link","v":"AP 2","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/fcu/#ap1-ap2-pushbuttons"}],"action":[{"t":"text","v":"engage "},{"t":"b","v":"both"}],"condition":null,"conditionLabel":"Condition"},{"id":"5-descent-approach-and-landing:121:LOC_and_G/S_on_the_FMA:verify_armed,_th","control":[{"t":"b","v":"LOC"},{"t":"text","v":" and "},{"t":"b","v":"G/S"},{"t":"text","v":" on the FMA"}],"action":[{"t":"text","v":"verify "},{"t":"b","v":"armed"},{"t":"text","v":", then monitor capture"}],"condition":null,"conditionLabel":"Condition"},{"id":"5-descent-approach-and-landing:122:Go-around_altitude:set_on_the_ALT_s","control":[{"t":"text","v":"Go-around altitude"}],"action":[{"t":"text","v":"set on the "},{"t":"link","v":"ALT","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/fcu/#altitude-selector-knob-inner-and-outer"},{"t":"text","v":" selector"}],"condition":null,"conditionLabel":"Condition"}]}]},{"title":"At green dot speed","level":3,"blocks":[{"type":"items","items":[{"id":"5-descent-approach-and-landing:123:FLAPS_lever:set_1","control":[{"t":"link","v":"FLAPS","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/flaps/"},{"t":"text","v":" lever"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"1"}],"condition":[{"t":"text","v":"about 3 NM before the final descent point"}],"conditionLabel":"Condition"},{"id":"5-descent-approach-and-landing:124:TCAS_mode_selector:set_TA/RA","control":[{"t":"link","v":"TCAS mode","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/atc-tcas/#tcas-mode"},{"t":"text","v":" selector"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"TA/RA"}],"condition":[{"t":"b","v":"TA"},{"t":"text","v":" only for converging or parallel runways"}],"conditionLabel":"Condition"}]}]},{"title":"At 2,000 ft AGL minimum","level":3,"blocks":[{"type":"items","items":[{"id":"5-descent-approach-and-landing:125:FLAPS_lever:set_2","control":[{"t":"link","v":"FLAPS","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/flaps/"},{"t":"text","v":" lever"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"2"}],"condition":[{"t":"text","v":"expect deceleration toward F speed"}],"conditionLabel":"Condition"}]}]},{"title":"When flaps are at 2","level":3,"blocks":[{"type":"items","items":[{"id":"5-descent-approach-and-landing:126:LANDING_GEAR_lever:set_DOWN","control":[{"t":"link","v":"LANDING GEAR","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/front/autobrake-gear/"},{"t":"text","v":" lever"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"DOWN"}],"condition":null,"conditionLabel":"Condition"},{"id":"5-descent-approach-and-landing:127:AUTO/BRK:confirm_LO_long_","control":[{"t":"link","v":"AUTO/BRK","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/front/autobrake-gear/#autobrk"}],"action":[{"t":"text","v":"confirm "},{"t":"b","v":"LO"},{"t":"text","v":" long runway, "},{"t":"b","v":"MED"},{"t":"text","v":" short or contaminated"}],"condition":[{"t":"text","v":"never MAX for landing"}],"conditionLabel":"Condition"},{"id":"5-descent-approach-and-landing:128:SPEED_BRAKE_lever:set_ARM","control":[{"t":"link","v":"SPEED BRAKE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/speedbrake/"},{"t":"text","v":" lever"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ARM"}],"condition":null,"conditionLabel":"Condition"},{"id":"5-descent-approach-and-landing:129:RWY_TURN_OFF_switch:set_ON","control":[{"t":"link","v":"RWY TURN OFF","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#rwy-turn-off"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":"Condition"},{"id":"5-descent-approach-and-landing:130:NOSE_switch:set_T.O.","control":[{"t":"link","v":"NOSE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#nose"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"T.O."}],"condition":null,"conditionLabel":"Condition"}]}]},{"title":"When the landing gear is down","level":3,"blocks":[{"type":"items","items":[{"id":"5-descent-approach-and-landing:131:FLAPS_lever:set_3","control":[{"t":"link","v":"FLAPS","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/flaps/"},{"t":"text","v":" lever"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"3"}],"condition":null,"conditionLabel":"Condition"},{"id":"5-descent-approach-and-landing:132:ECAM_WHEEL_page:check","control":[{"t":"text","v":"ECAM WHEEL page"}],"action":[{"t":"text","v":"check"}],"condition":null,"conditionLabel":"Condition"},{"id":"5-descent-approach-and-landing:133:Landing_gear_lights:confirm_three_gr","control":[{"t":"text","v":"Landing gear lights"}],"action":[{"t":"text","v":"confirm "},{"t":"b","v":"three greens"}],"condition":null,"conditionLabel":"Condition"},{"id":"5-descent-approach-and-landing:134:SPEED_BRAKE_lever:verify_retracted","control":[{"t":"link","v":"SPEED BRAKE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/speedbrake/"},{"t":"text","v":" lever"}],"action":[{"t":"text","v":"verify "},{"t":"b","v":"retracted"}],"condition":[{"t":"text","v":"before selecting FLAPS FULL"}],"conditionLabel":"Condition"},{"id":"5-descent-approach-and-landing:135:FLAPS_lever:set_FULL","control":[{"t":"link","v":"FLAPS","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/flaps/"},{"t":"text","v":" lever"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"FULL"}],"condition":null,"conditionLabel":"Condition"},{"id":"5-descent-approach-and-landing:136:WING_ANTI_ICE_pushbutton:set_OFF","control":[{"t":"link","v":"WING ANTI ICE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/anti-ice/#wing-anti-ice"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":[{"t":"text","v":"leave ON only in severe icing"}],"conditionLabel":"Condition"},{"id":"5-descent-approach-and-landing:137:CALLS_ALL_pushbutton:press","control":[{"t":"link","v":"CALLS ALL","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/calls/#all"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"press"}],"condition":[{"t":"text","v":"cabin secure"}],"conditionLabel":"Condition"}]},{"type":"note","frag":[{"t":"text","v":"flyPad: perform the "},{"t":"b","v":"LANDING"},{"t":"text","v":" checklist."}]}]},{"title":"Landing","level":2,"blocks":[{"type":"items","items":[{"id":"5-descent-approach-and-landing:138:THRUST_levers:set_REV_MAX","control":[{"t":"link","v":"THRUST","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/thrust-pitch-trim/"},{"t":"text","v":" levers"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"REV MAX"}],"condition":[{"t":"text","v":"immediately at main gear touchdown"}],"conditionLabel":"Trigger"},{"id":"5-descent-approach-and-landing:139:THRUST_levers:set_REV_IDLE","control":[{"t":"link","v":"THRUST","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/thrust-pitch-trim/"},{"t":"text","v":" levers"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"REV IDLE"}],"condition":[{"t":"b","v":"70 kt"}],"conditionLabel":"Trigger"},{"id":"5-descent-approach-and-landing:140:THRUST_levers:stow_reversers","control":[{"t":"link","v":"THRUST","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/thrust-pitch-trim/"},{"t":"text","v":" levers"}],"action":[{"t":"b","v":"stow"},{"t":"text","v":" reversers"}],"condition":[{"t":"text","v":"taxi speed"}],"conditionLabel":"Trigger"},{"id":"5-descent-approach-and-landing:141:AUTO/BRK:disengage_—_brak","control":[{"t":"link","v":"AUTO/BRK","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/front/autobrake-gear/#autobrk"}],"action":[{"t":"text","v":"disengage — brake manually"}],"condition":[{"t":"text","v":"before "},{"t":"b","v":"20 kt"}],"conditionLabel":"Trigger"}]}]},{"title":"Vacate the Runway","level":2,"blocks":[{"type":"para","frag":[{"t":"text","v":"Clear the runway and stop on the taxiway before running the after-landing items."}]}]}]},{"id":"6-after-landing-and-taxi-to-gate","num":"6","title":"6 · After Landing and Taxi to Gate","short":"After Landing and Taxi to Gate","lede":null,"groups":[{"title":"After Landing","level":2,"blocks":[{"type":"para","frag":[{"t":"text","v":"Once clear of the runway and stopped on the taxiway."}]},{"type":"items","items":[{"id":"6-after-landing-and-taxi-to-gate:142:SPEED_BRAKE_lever:set_RET","control":[{"t":"link","v":"SPEED BRAKE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/speedbrake/"},{"t":"text","v":" lever"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"RET"}],"condition":null,"conditionLabel":"Condition"},{"id":"6-after-landing-and-taxi-to-gate:143:ENG_MODE_selector:set_NORM","control":[{"t":"link","v":"ENG MODE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/engine/#eng-mode-selector"},{"t":"text","v":" selector"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"NORM"}],"condition":null,"conditionLabel":"Condition"},{"id":"6-after-landing-and-taxi-to-gate:144:FLAPS_lever:set_0","control":[{"t":"link","v":"FLAPS","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/flaps/"},{"t":"text","v":" lever"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"0"}],"condition":null,"conditionLabel":"Condition"},{"id":"6-after-landing-and-taxi-to-gate:145:TCAS_mode_selector:set_STBY","control":[{"t":"link","v":"TCAS mode","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/atc-tcas/#tcas-mode"},{"t":"text","v":" selector"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"STBY"}],"condition":null,"conditionLabel":"Condition"},{"id":"6-after-landing-and-taxi-to-gate:146:PWS_switch:set_OFF","control":[{"t":"link","v":"PWS","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/radar/#pws"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":"Condition"},{"id":"6-after-landing-and-taxi-to-gate:147:APU_MASTER_SW_pushbutton:set_ON","control":[{"t":"link","v":"APU MASTER SW","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/apu/#master-sw"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":"Condition"},{"id":"6-after-landing-and-taxi-to-gate:148:APU_START_pushbutton:set_ON","control":[{"t":"link","v":"APU START","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/apu/#start"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":"Condition"},{"id":"6-after-landing-and-taxi-to-gate:149:ENG_ANTI_ICE_pushbutton:set_OFF","control":[{"t":"link","v":"ENG ANTI ICE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/anti-ice/#eng-1-2"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":[{"t":"text","v":"if not required"}],"conditionLabel":"Condition"},{"id":"6-after-landing-and-taxi-to-gate:150:WING_ANTI_ICE_pushbutton:set_OFF","control":[{"t":"link","v":"WING ANTI ICE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/anti-ice/#wing-anti-ice"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":[{"t":"text","v":"if not required"}],"conditionLabel":"Condition"},{"id":"6-after-landing-and-taxi-to-gate:151:NOSE_switch:set_TAXI","control":[{"t":"link","v":"NOSE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#nose"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"TAXI"}],"condition":[{"t":"text","v":"when leaving the runway"}],"conditionLabel":"Condition"},{"id":"6-after-landing-and-taxi-to-gate:152:RWY_TURN_OFF_switch:set_ON","control":[{"t":"link","v":"RWY TURN OFF","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#rwy-turn-off"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":"Condition"},{"id":"6-after-landing-and-taxi-to-gate:153:STROBE_switch:set_AUTO","control":[{"t":"link","v":"STROBE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#strobe"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"AUTO"}],"condition":[{"t":"b","v":"ON"},{"t":"text","v":" again if crossing a runway"}],"conditionLabel":"Condition"},{"id":"6-after-landing-and-taxi-to-gate:154:LAND_L_&_R_switches:set_both_OFF","control":[{"t":"link","v":"LAND L & R","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#land-l-r"},{"t":"text","v":" switches"}],"action":[{"t":"text","v":"set both "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":"Condition"},{"id":"6-after-landing-and-taxi-to-gate:155:WX_RADAR_MODE_selector:set_OFF","control":[{"t":"link","v":"WX RADAR MODE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/radar/#mode-display-mode-selector"},{"t":"text","v":" selector"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":[{"t":"text","v":"avoids radiating ground crew"}],"conditionLabel":"Condition"},{"id":"6-after-landing-and-taxi-to-gate:156:BRK_FAN_pushbutton:set_ON","control":[{"t":"link","v":"BRK FAN","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/front/autobrake-gear/#brk-fan"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":[{"t":"text","v":"if hot brakes; ideally 5 min after landing"}],"conditionLabel":"Condition"}]},{"type":"note","frag":[{"t":"text","v":"flyPad: perform the "},{"t":"b","v":"AFTER LANDING"},{"t":"text","v":" checklist."}]}]},{"title":"Taxi to Gate","level":2,"blocks":[{"type":"para","frag":[{"t":"text","v":"Request taxi to the gate — "},{"t":"text","v":"ATC Communications › Ground, taxi to stand"},{"t":"text","v":"."}]}]}]},{"id":"7-powering-down","num":"7","title":"7 · Powering Down","short":"Powering Down","lede":null,"groups":[{"title":"Parking at the Gate","level":2,"blocks":[{"type":"items","items":[{"id":"7-powering-down:157:PARK_BRK_handle:set_ON","control":[{"t":"link","v":"PARK BRK","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/parking-brake/"},{"t":"text","v":" handle"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":null,"conditionLabel":"Condition"},{"id":"7-powering-down:158:ENG_ANTI_ICE_and_WING_AN:set_OFF","control":[{"t":"link","v":"ENG ANTI ICE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/anti-ice/#eng-1-2"},{"t":"text","v":" and "},{"t":"link","v":"WING ANTI ICE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/anti-ice/#wing-anti-ice"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":"Condition"},{"id":"7-powering-down:159:APU_BLEED_pushbutton:set_ON","control":[{"t":"link","v":"APU BLEED","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ac/#apu-bleed"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":[{"t":"text","v":"before engine shutdown — keeps exhaust fumes out of the packs"}],"conditionLabel":"Condition"},{"id":"7-powering-down:160:EXT_PWR_pushbutton:set_ON","control":[{"t":"link","v":"EXT PWR","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/elec/#ext-pwr"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"ON"}],"condition":[{"t":"text","v":"if the APU is not available"}],"conditionLabel":"Condition"},{"id":"7-powering-down:161:ENG_MASTER_1_&_2_switche:set_OFF","control":[{"t":"link","v":"ENG MASTER 1 & 2","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/engine/#eng-master-1-2"},{"t":"text","v":" switches"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":[{"t":"text","v":"not less than 3 min after high thrust"}],"conditionLabel":"Condition"},{"id":"7-powering-down:162:SEAT_BELTS_sign:set_OFF","control":[{"t":"link","v":"SEAT BELTS","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/signs/#seat-belts"},{"t":"text","v":" sign"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":"Condition"},{"id":"7-powering-down:163:BEACON_switch:set_OFF","control":[{"t":"link","v":"BEACON","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#beacon"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":[{"t":"text","v":"once the engines have spooled down"}],"conditionLabel":"Condition"},{"id":"7-powering-down:164:NOSE_switch:set_OFF","control":[{"t":"link","v":"NOSE","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#nose"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":"Condition"},{"id":"7-powering-down:165:RWY_TURN_OFF_switch:set_OFF","control":[{"t":"link","v":"RWY TURN OFF","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#rwy-turn-off"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":"Condition"},{"id":"7-powering-down:166:ATC_mode_selector:set_STBY","control":[{"t":"link","v":"ATC mode","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/atc-tcas/#mode-selector"},{"t":"text","v":" selector"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"STBY"}],"condition":null,"conditionLabel":"Condition"},{"id":"7-powering-down:167:BRK_FAN_pushbutton:set_OFF","control":[{"t":"link","v":"BRK FAN","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/front/autobrake-gear/#brk-fan"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":[{"t":"text","v":"if it was turned on"}],"conditionLabel":"Condition"}]},{"type":"note","frag":[{"t":"text","v":"Keep the engines at or near idle for "},{"t":"b","v":"at least 3 minutes"},{"t":"text","v":" before shutdown after high-thrust operations. Normal taxi thrust and idle reverse do not count as high thrust, so this is usually already satisfied."}]},{"type":"note","frag":[{"t":"text","v":"flyPad: perform the "},{"t":"b","v":"PARKING"},{"t":"text","v":" checklist."}]}]},{"title":"Disembarking Passengers and Baggage","level":2,"blocks":[{"type":"steps","items":[[{"t":"text","v":"Open "},{"t":"b","v":"flyPad / Ground / Services"},{"t":"text","v":"."}],[{"t":"text","v":"Request the jet bridge."}],[{"t":"text","v":"Request the baggage truck."}]]}]},{"title":"Securing the Aircraft","level":2,"blocks":[{"type":"items","items":[{"id":"7-powering-down:168:L_TK_PUMPS_1_&_2_pushbut:set_OFF","control":[{"t":"link","v":"L TK PUMPS 1 & 2","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/fuel/#l-r-tk-pumps-1-2"},{"t":"text","v":" pushbuttons"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":"Condition"},{"id":"7-powering-down:169:CTR_TK_PUMP_1_&_2_pushbu:set_OFF","control":[{"t":"link","v":"CTR TK PUMP 1 & 2","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/fuel/#ctr-tk-pump-1-2"},{"t":"text","v":" pushbuttons"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":"Condition"},{"id":"7-powering-down:170:R_TK_PUMPS_1_&_2_pushbut:set_OFF","control":[{"t":"link","v":"R TK PUMPS 1 & 2","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/fuel/#l-r-tk-pumps-1-2"},{"t":"text","v":" pushbuttons"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":"Condition"},{"id":"7-powering-down:171:ADIR_1_&_2_&_3_selectors:set_OFF","control":[{"t":"link","v":"ADIR 1 & 2 & 3","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/adirs/"},{"t":"text","v":" selectors"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":"Condition"},{"id":"7-powering-down:172:CREW_SUPPLY_pushbutton:set_OFF","control":[{"t":"link","v":"CREW SUPPLY","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/oxygen/#crew-supply"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":"Condition"},{"id":"7-powering-down:173:APU_BLEED_pushbutton:set_OFF","control":[{"t":"link","v":"APU BLEED","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ac/#apu-bleed"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":"Condition"},{"id":"7-powering-down:174:NO_SMOKING_sign:set_OFF","control":[{"t":"link","v":"NO SMOKING","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/signs/#no-smoking"},{"t":"text","v":" sign"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":"Condition"},{"id":"7-powering-down:175:EMER_EXIT_LT_selector:set_OFF","control":[{"t":"link","v":"EMER EXIT LT","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/signs/#emer-exit-lt"},{"t":"text","v":" selector"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":"Condition"},{"id":"7-powering-down:176:NAV_&_LOGO_switch:set_OFF","control":[{"t":"link","v":"NAV & LOGO","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#nav-logo"},{"t":"text","v":" switch"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":"Condition"},{"id":"7-powering-down:177:APU_MASTER_SW_pushbutton:set_OFF","control":[{"t":"link","v":"APU MASTER SW","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/apu/#master-sw"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":[{"t":"text","v":"wait 2 min for the APU flap door to close"}],"conditionLabel":"Condition"},{"id":"7-powering-down:178:EXT_PWR_pushbutton:set_OFF","control":[{"t":"link","v":"EXT PWR","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/elec/#ext-pwr"},{"t":"text","v":" pushbutton"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":[{"t":"text","v":"if it was turned on"}],"conditionLabel":"Condition"},{"id":"7-powering-down:179:BAT_1_&_2_pushbuttons:set_OFF","control":[{"t":"link","v":"BAT 1 & 2","href":"https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/elec/#bat-1-2"},{"t":"text","v":" pushbuttons"}],"action":[{"t":"text","v":"set "},{"t":"b","v":"OFF"}],"condition":null,"conditionLabel":"Condition"}]},{"type":"note","frag":[{"t":"text","v":"flyPad: perform the "},{"t":"b","v":"SECURING AIRCRAFT"},{"t":"text","v":" checklist."}]}]}]},{"id":"lights","num":"L","title":"Lights by Phase","short":"Lights","groups":[{"title":"","level":2,"blocks":[{"type":"para","frag":[{"t":"text","v":"The same handful of light switches gets touched in almost every phase, so they live here as one matrix instead of being repeated across seven procedure pages. The procedure pages still say *when* to act; this page is the single source of truth for *what state*."}]},{"type":"para","frag":[{"t":"b","v":"–"},{"t":"text","v":" means no action in that phase (the previous state carries over)."}]}]},{"title":"Exterior","level":2,"blocks":[{"type":"matrix","head":["Light","Prep","Start and Taxi","Takeoff","Initial Climb","Above 10,000 ft","Descent 10,000 ft","Final (G/S green)","After Landing","Shutdown"],"rows":[["NAV & LOGO","ON","–","ON","–","–","–","–","–","OFF"],["STROBE","AUTO","–","ON","–","–","–","–","AUTO","–"],["BEACON","OFF","ON","–","–","–","–","–","–","OFF"],["WING","–","–","OFF","–","–","–","–","–","–"],["RWY TURN OFF","–","ON","ON","OFF","–","–","ON","ON","OFF"],["NOSE","–","TAXI","T.O.","OFF","–","–","T.O.","TAXI","OFF"],["LAND L & R","–","–","ON","–","OFF","ON","–","OFF","–"]]},{"type":"para","frag":[{"t":"text","v":"- "},{"t":"b","v":"BEACON"},{"t":"text","v":" goes ON at start clearance, before pushback or engine start, and OFF   once the engines have spooled down at the gate. - "},{"t":"b","v":"STROBE"},{"t":"text","v":" sits at AUTO on the ground and goes "},{"t":"b","v":"ON"},{"t":"text","v":" for line-up. Select ON   whenever you cross a runway, taxiing out or in. - "},{"t":"b","v":"NOSE"},{"t":"text","v":" and "},{"t":"b","v":"RWY TURN OFF"},{"t":"text","v":" go OFF in the climb at S speed, at the same time   the ground spoilers are disarmed."}]}]},{"title":"Interior and Signs","level":2,"blocks":[{"type":"matrix","head":["Control","Prep","Above 10,000 ft","Descent 10,000 ft","Shutdown"],"rows":[["SEAT BELTS","ON","as required","ON","OFF"],["NO SMOKING","AUTO","–","–","OFF"],["EMER EXIT LT","ARM","–","–","OFF"],["OVHD INTEG LT","BRT","–","–","–"],["INTEG LT","BRT","–","–","–"]]}]},{"title":"Notes","level":2,"blocks":[{"type":"para","frag":[{"t":"text","v":"- "},{"t":"b","v":"NAV & LOGO and RWY TURN OFF appear twice."},{"t":"text","v":" Both are set before the takeoff   block and set again in it. If nothing changed them in between, the second   entry is a verify rather than an action — the SOP repeats them the same way. - "},{"t":"b","v":"WING is only ever set OFF"},{"t":"text","v":" (at takeoff) and never turned on, so that entry   is effectively a verify. - "},{"t":"b","v":"NO SMOKING sits at AUTO"},{"t":"text","v":", which ties it to landing gear position. Leaving   either sign off AUTO prevents the emergency batteries from charging."}]}]}]},{"id":"atc","num":"A","kind":"atc","title":"ATC Communications","short":"ATC","chain":["Delivery","Ground","Tower","Departure","Centre","Approach"],"groups":[{"title":"Clearance Delivery (Startup)","level":2,"blocks":[{"type":"exchange","title":"Request en-route clearance","turns":[{"who":"You","tag":null,"text":"{DEP} Delivery, good day, {CALLSIGN} at stand {STAND} with information {ATIS}, requesting clearance to {ARR}."},{"who":"ATC","tag":null,"text":"{CALLSIGN}, {DEP} Delivery, good day, clearance is to {ARR}, {SID} departure, runway {RWY}, squawk {SQUAWK}."},{"who":"You","tag":"readback","text":"Cleared to {ARR}, {SID} departure, runway {RWY}, squawk {SQUAWK}, {CALLSIGN}."},{"who":"ATC","tag":null,"text":"{CALLSIGN}, readback is correct, report ready for startup."},{"who":"You","tag":null,"text":"Wilco, {CALLSIGN}."}]},{"type":"exchange","title":"Request startup","turns":[{"who":"You","tag":null,"text":"{CALLSIGN} is ready for startup."},{"who":"ATC","tag":null,"text":"{CALLSIGN}, roger, startup is approved, for the pushback contact Ground on {FREQ}."},{"who":"You","tag":"readback","text":"Startup approved and Ground on {FREQ} for the pushback, {CALLSIGN}, bye bye."}]}]},{"title":"Ground (Pushback and Taxi)","level":2,"blocks":[{"type":"exchange","title":"Request pushback","turns":[{"who":"You","tag":null,"text":"{DEP} Ground, good day, {CALLSIGN} at stand {STAND}, requesting pushback."},{"who":"ATC","tag":null,"text":"{CALLSIGN}, {DEP} Ground, good day, pushback is approved."},{"who":"You","tag":"readback","text":"Pushback approved, {CALLSIGN}."}]},{"type":"exchange","title":"Request taxi","turns":[{"who":"You","tag":null,"text":"{CALLSIGN}, request taxi."},{"who":"ATC","tag":null,"text":"{CALLSIGN}, taxi to {HOLDING POINT}, via {TAXI ROUTE}."},{"who":"You","tag":"readback","text":"Taxi to {HOLDING POINT}, via {TAXI ROUTE}, {CALLSIGN}."}]},{"type":"exchange","title":"Give way","turns":[{"who":"ATC","tag":null,"text":"{CALLSIGN}, give way to the {AIRLINE AND TYPE} from the right."},{"who":"You","tag":"readback","text":"Give way to the {AIRLINE AND TYPE} from the right, {CALLSIGN}."}]},{"type":"exchange","title":"Handoff to Tower","turns":[{"who":"ATC","tag":null,"text":"{CALLSIGN}, at {HOLDING POINT} hold short and contact Tower on {FREQ}, bye bye."},{"who":"You","tag":"readback","text":"At {HOLDING POINT} hold short and contact Tower on {FREQ}, {CALLSIGN}."}]}]},{"title":"Tower (Departure)","level":2,"blocks":[{"type":"exchange","title":"Report ready for departure","turns":[{"who":"You","tag":null,"text":"{DEP} Tower, good day, {CALLSIGN} at {HOLDING POINT}, ready for departure."},{"who":"ATC","tag":null,"text":"{CALLSIGN}, {DEP} Tower, good day, line up and wait runway {RWY}."},{"who":"You","tag":"readback","text":"Line up and wait runway {RWY}, {CALLSIGN}."}]},{"type":"exchange","title":"Takeoff clearance","turns":[{"who":"ATC","tag":null,"text":"{CALLSIGN}, wind {WIND}, runway {RWY}, cleared for takeoff."},{"who":"You","tag":"readback","text":"Cleared for takeoff runway {RWY}, {CALLSIGN}."}]},{"type":"exchange","title":"Handoff to Departure","turns":[{"who":"ATC","tag":null,"text":"{CALLSIGN}, contact {DEP} Departure on {FREQ}, bye bye."},{"who":"You","tag":"readback","text":"Contact {DEP} Departure on {FREQ}, {CALLSIGN}, bye bye."}]}]},{"title":"Departure and Centre (Climb and Cruise)","level":2,"blocks":[{"type":"exchange","title":"Check in with Departure","turns":[{"who":"You","tag":null,"text":"{DEP} Departure, good day, {CALLSIGN}, passing {ALT}, {SID}."},{"who":"ATC","tag":null,"text":"{CALLSIGN}, {DEP} Departure, identified, climb {FL}."},{"who":"You","tag":"readback","text":"Climb {FL}, {CALLSIGN}."}]},{"type":"exchange","title":"Direct routing","turns":[{"who":"ATC","tag":null,"text":"{CALLSIGN}, direct to {VOR}."},{"who":"You","tag":"readback","text":"Direct {VOR}, {CALLSIGN}."}]},{"type":"exchange","title":"Handoff to Centre","turns":[{"who":"ATC","tag":null,"text":"{CALLSIGN}, contact {STATION} on {FREQ}, bye bye."},{"who":"You","tag":"readback","text":"Contact {STATION} on {FREQ}, {CALLSIGN}, bye bye."}]},{"type":"exchange","title":"Check in with Centre","turns":[{"who":"You","tag":null,"text":"{STATION}, good day, {CALLSIGN}, passing {ALT}, inbound to {VOR}."},{"who":"ATC","tag":null,"text":"{CALLSIGN}, good day, {STATION}, identified, climb {FL}."},{"who":"You","tag":"readback","text":"Climb {FL}, {CALLSIGN}."}]},{"type":"exchange","title":"Request descent","turns":[{"who":"You","tag":null,"text":"{CALLSIGN}, request descent."},{"who":"ATC","tag":null,"text":"{CALLSIGN}, descend to {FL}."},{"who":"You","tag":"readback","text":"Descending to {FL}, {CALLSIGN}."}]},{"type":"exchange","title":"Check in with the next Centre, and get an approach","turns":[{"who":"You","tag":null,"text":"{STATION}, good day, {CALLSIGN}, passing {ALT} for {FL}, inbound to {VOR}."},{"who":"ATC","tag":null,"text":"{CALLSIGN}, good day, radar contact, {STAR}, expect {APPROACH} runway {RWY}, descend {FL}."},{"who":"You","tag":"readback","text":"{STAR}, {APPROACH} runway {RWY} and descend {FL}, {CALLSIGN}."}]},{"type":"exchange","title":"Handoff to Approach","turns":[{"who":"ATC","tag":null,"text":"{CALLSIGN}, contact {ARR} Approach on {FREQ}, bye bye."},{"who":"You","tag":"readback","text":"Contact {ARR} Approach on {FREQ}, {CALLSIGN}, bye bye."}]}]},{"title":"Approach","level":2,"blocks":[{"type":"exchange","title":"Check in","turns":[{"who":"You","tag":null,"text":"{ARR} Approach, good day, {CALLSIGN}, {FL}, {STAR}."},{"who":"ATC","tag":null,"text":"{CALLSIGN}, {ARR} Approach, good day, continue approach."},{"who":"You","tag":"readback","text":"Continue approach, {CALLSIGN}."}]},{"type":"exchange","title":"Vectors","turns":[{"who":"ATC","tag":null,"text":"{CALLSIGN}, descend {FL} and after {VOR} fly heading {HDG}."},{"who":"You","tag":"readback","text":"Descend {FL} and after {VOR} fly heading {HDG}, {CALLSIGN}."},{"who":"ATC","tag":null,"text":"{CALLSIGN}, fly heading {HDG}, descend {FL}, QNH {QNH}."},{"who":"You","tag":"readback","text":"Fly heading {HDG}, descend {FL} on QNH {QNH}, {CALLSIGN}."},{"who":"ATC","tag":null,"text":"{CALLSIGN}, turn left heading {HDG}, speed {SPD}."},{"who":"You","tag":"readback","text":"Left heading {HDG} and speed {SPD}, {CALLSIGN}."}]},{"type":"para","frag":[{"t":"text","v":"Any of these, in any order:"}]},{"type":"exchange","title":"Approach clearance","turns":[{"who":"ATC","tag":null,"text":"{CALLSIGN}, turn left heading {HDG}, cleared {APPROACH} runway {RWY}."},{"who":"You","tag":"readback","text":"Turn left heading {HDG}, cleared {APPROACH} runway {RWY}, {CALLSIGN}."}]},{"type":"exchange","title":"Handoff to Tower","turns":[{"who":"ATC","tag":null,"text":"{CALLSIGN}, contact {ARR} Tower on {FREQ}, bye bye."},{"who":"You","tag":"readback","text":"Contact {ARR} Tower on {FREQ}, {CALLSIGN}, bye bye."}]}]},{"title":"Tower (Landing)","level":2,"blocks":[{"type":"exchange","title":"Check in","turns":[{"who":"You","tag":null,"text":"{ARR} Tower, {CALLSIGN}, {APPROACH} runway {RWY}."},{"who":"ATC","tag":null,"text":"{CALLSIGN}, good day."}]},{"type":"note","frag":[{"t":"text","v":"Tower may add a number — that is your landing sequence, i.e. how many aircraft are ahead of you on the runway."}]},{"type":"exchange","title":"Landing clearance","turns":[{"who":"ATC","tag":null,"text":"{CALLSIGN}, wind {WIND}, runway {RWY} cleared to land."},{"who":"You","tag":"readback","text":"Cleared to land runway {RWY}, {CALLSIGN}."}]}]},{"title":"Ground (Taxi to Stand)","level":2,"blocks":[{"type":"exchange","title":"","turns":[{"who":"ATC","tag":null,"text":"{CALLSIGN}, {ARR} Ground, taxi to stand {STAND} via {TAXI ROUTE}."},{"who":"You","tag":"readback","text":"Taxi to stand {STAND} via {TAXI ROUTE}, {CALLSIGN}."}]}]}]}],"tokens":[{"key":"CALLSIGN","label":"your callsign"},{"key":"DEP","label":"departure airport"},{"key":"ARR","label":"destination airport"},{"key":"STAND","label":"gate or stand"},{"key":"ATIS","label":"ATIS information letter"},{"key":"RWY","label":"active runway"},{"key":"SID","label":"departure route"},{"key":"STAR","label":"standard terminal arrival route"},{"key":"SQUAWK","label":"transponder code"},{"key":"APPROACH","label":"type of approach"},{"key":"FREQ","label":"frequency of the next station"},{"key":"HOLDING POINT","label":"holding point"},{"key":"TAXI ROUTE","label":"taxi route"},{"key":"AIRLINE AND TYPE","label":"airline and type"},{"key":"WIND","label":"wind"},{"key":"ALT","label":"alt"},{"key":"FL","label":"fl"},{"key":"VOR","label":"vor"},{"key":"STATION","label":"station"},{"key":"HDG","label":"hdg"},{"key":"QNH","label":"qnh"},{"key":"SPD","label":"spd"}]}</script>
+<script>
+(() => {
+  "use strict";
+  const DATA = JSON.parse(document.getElementById("data").textContent);
+  const LS_TICKS = "a32nx.ticks.v1";
+  const LS_FIELDS = "a32nx.fields.v1";
+  const LS_THEME = "a32nx.theme.v1";
+  const LS_PHASE = "a32nx.phase.v1";
+
+  const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
+  const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+
+  let ticks = load(LS_TICKS, {});
+  let fields = load(LS_FIELDS, {});
+  let current = load(LS_PHASE, DATA.phases[0].id);
+  if (!DATA.phases.some(p => p.id === current)) current = DATA.phases[0].id;
+
+  const theme = load(LS_THEME, window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+  document.documentElement.dataset.theme = theme;
+
+  const esc = s => String(s)
+    .replace(/[—–]/g, "-")
+    .replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  /* ----- inline markup already sanitised by the generator: {b:…} spans ----- */
+  const inline = frag => frag.map(n => {
+    if (n.t === "text") return esc(n.v);
+    if (n.t === "b") return "<b>" + esc(n.v) + "</b>";
+    if (n.t === "sub") return "<sub>" + esc(n.v) + "</sub>";
+    if (n.t === "link") return '<a href="' + esc(n.href) + '" target="_blank" rel="noopener">' + esc(n.v) + "</a>";
+    return "";
+  }).join("");
+
+  /* ----- checklist counting ----- */
+  const phaseItems = p => (p.groups || []).flatMap(g => (g.blocks || []).filter(b => b.type === "items").flatMap(b => b.items));
+  const countPhase = p => {
+    const it = phaseItems(p);
+    return { done: it.filter(i => ticks[i.id]).length, total: it.length };
+  };
+
+  /* ----- render: nav ----- */
+  const navEl = document.getElementById("nav");
+  function renderNav() {
+    navEl.innerHTML = DATA.phases.map((p, i) => {
+      const { done, total } = countPhase(p);
+      const pct = total ? Math.round(done / total * 100) : null;
+      return '<button data-id="' + p.id + '" aria-current="' + (p.id === current) + '"' +
+        (total && done === total ? ' data-complete="true"' : "") + '>' +
+        '<span class="num">' + (p.num || "·") + '</span>' +
+        '<span>' + esc(p.short) + '</span>' +
+        '<span class="pct">' + (pct === null ? "" : pct + "%") + '</span></button>';
+    }).join("");
+  }
+
+  function renderTotal() {
+    let d = 0, t = 0;
+    DATA.phases.forEach(p => { const c = countPhase(p); d += c.done; t += c.total; });
+    document.getElementById("total").textContent = t ? d + " / " + t : "";
+    document.getElementById("overall-bar").style.width = t ? (d / t * 100) + "%" : "0%";
+  }
+
+  /* ----- render: blocks ----- */
+  function blockHTML(b) {
+    if (b.type === "items") {
+      return '<ul class="items">' + b.items.map(i =>
+        '<li data-done="' + !!ticks[i.id] + '" data-item="' + i.id + '">' +
+          '<label><input type="checkbox" ' + (ticks[i.id] ? "checked" : "") + ' data-id="' + i.id + '">' +
+          '<span class="ctl">' + inline(i.control) + '</span>' +
+          '<span class="act">' + inline(i.action) + '</span>' +
+          '<span class="cond">' + (i.condition ? inline(i.condition) : "") + '</span>' +
+        '</label></li>').join("") + '</ul>';
+    }
+    if (b.type === "steps") {
+      return '<ol class="steps">' + b.items.map(s => "<li>" + inline(s) + "</li>").join("") + "</ol>";
+    }
+    if (b.type === "note") return '<div class="note">' + inline(b.frag) + "</div>";
+    if (b.type === "para") return '<p class="para">' + inline(b.frag) + "</p>";
+    if (b.type === "matrix") {
+      return '<div class="scroll"><table class="mx"><thead><tr>' +
+        b.head.map((h, i) => "<th>" + esc(h) + "</th>").join("") + "</tr></thead><tbody>" +
+        b.rows.map(r => "<tr>" + r.map((c, i) => {
+          if (i === 0) return "<th>" + esc(c) + "</th>";
+          const nil = c === "–" || c === "-" || c === "";
+          const soft = /required/i.test(c);
+          return '<td class="' + (nil ? "nil" : soft ? "soft" : "") + '">' + esc(nil ? "-" : c) + "</td>";
+        }).join("") + "</tr>").join("") + "</tbody></table></div>";
+    }
+    return "";
+  }
+
+  /* ----- ATC substitution ----- */
+  function sayHTML(text) {
+    return esc(text).replace(/\{([A-Z0-9 _+]+)\}/g, (m, tok) => {
+      const v = (fields[tok] || "").trim();
+      return v ? '<span class="fill">' + esc(v) + "</span>"
+               : '<span class="tok">' + esc(tok.toLowerCase()) + "</span>";
+    });
+  }
+  function plain(text) {
+    return text.replace(/\{([A-Z0-9 _+]+)\}/g, (m, tok) => (fields[tok] || "").trim() || m);
+  }
+
+  function atcHTML(p) {
+    let chain = "";
+    if (p.chain) {
+      chain = '<div class="chain" aria-label="ATC handoff sequence">' + p.chain.map((c, i) =>
+        (i ? '<i>→</i>' : "") + "<span>" + esc(c) + "</span>").join("") + "</div>";
+    }
+    const tools = '<div class="setup"><h2>Flight worksheet</h2><div class="fields">' +
+      DATA.tokens.map(t =>
+        '<label>' + esc(t.label) + '<input data-tok="' + esc(t.key) + '" value="' +
+        esc(fields[t.key] || "") + '" placeholder="' + esc(t.key.toLowerCase()) + '" spellcheck="false"></label>'
+      ).join("") + "</div>" + chain + "</div>";
+
+    const content = p.groups.map(g => {
+      let s = '<section class="grp"><h2>' + esc(g.title) + "</h2>";
+      s += (g.blocks || []).map(b => {
+        if (b.type === "exchange") {
+          return '<div class="exchange">' + (b.title ? "<h3>" + esc(b.title) + "</h3>" : "") +
+            b.turns.map(t =>
+              '<div class="turn ' + (t.who === "You" ? "you" : "atc") + '">' +
+                '<span class="who">' + esc(t.who) + (t.tag ? '<span class="rb">' + esc(t.tag) + "</span>" : "") + "</span>" +
+                '<span class="say">' + sayHTML(t.text) + "</span>" +
+                '<button class="copy" data-copy="' + esc(t.text) + '">copy</button>' +
+              "</div>").join("") + "</div>";
+        }
+        return blockHTML(b);
+      }).join("");
+      return s + "</section>";
+    }).join("");
+    return '<div class="atc-layout"><aside class="atc-tools">' + tools +
+      '</aside><div class="atc-content">' + content + "</div></div>";
+  }
+
+  /* ----- render: page ----- */
+  const mainEl = document.getElementById("main");
+  function render() {
+    const p = DATA.phases.find(x => x.id === current);
+    const { done, total } = countPhase(p);
+    let html = '<div class="page-head"><div class="page-copy"><h1 class="page">' + esc(p.short) + "</h1>";
+    if (p.lede) html += '<p class="lede">' + esc(p.lede) + "</p>";
+    html += "</div>";
+    if (total) {
+      const pct = Math.round(done / total * 100);
+      html += '<div class="phase-status"><div class="phase-status-row"><span>Phase progress</span><strong>' +
+        done + " / " + total + '</strong></div><div class="bar" role="progressbar" aria-label="' +
+        esc(p.short) + ' progress" aria-valuemin="0" aria-valuemax="' + total + '" aria-valuenow="' + done +
+        '"><i style="width:' + pct + '%"></i></div></div>';
+    }
+    html += "</div>";
+
+    if (p.kind === "atc") html += atcHTML(p);
+    else html += p.groups.map(g =>
+      '<section class="grp">' +
+        (g.title ? (g.level === 3 ? "<h3>" : "<h2>") + esc(g.title) + (g.level === 3 ? "</h3>" : "</h2>") : "") +
+        (g.blocks || []).map(blockHTML).join("") +
+      "</section>").join("");
+
+    mainEl.innerHTML = html;
+    renderNav(); renderTotal();
+    save(LS_PHASE, current);
+    document.querySelectorAll("nav.phases [aria-current=true]")[0]?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }
+
+  /* ----- events ----- */
+  navEl.addEventListener("click", e => {
+    const b = e.target.closest("button[data-id]"); if (!b) return;
+    current = b.dataset.id; window.scrollTo({ top: 0 }); render();
+  });
+
+  mainEl.addEventListener("change", e => {
+    const cb = e.target.closest("input[type=checkbox][data-id]"); if (!cb) return;
+    ticks[cb.dataset.id] = cb.checked;
+    if (!cb.checked) delete ticks[cb.dataset.id];
+    save(LS_TICKS, ticks);
+    cb.closest("li").dataset.done = cb.checked;
+    const p = DATA.phases.find(x => x.id === current);
+    const { done, total } = countPhase(p);
+    const bar = mainEl.querySelector(".bar");
+    if (bar) {
+      bar.setAttribute("aria-valuenow", done);
+      bar.querySelector("i").style.width = (done / total * 100) + "%";
+      const status = mainEl.querySelector(".phase-status-row strong");
+      if (status) status.textContent = done + " / " + total;
+    }
+    renderNav(); renderTotal();
+  });
+
+  mainEl.addEventListener("input", e => {
+    const f = e.target.closest("input[data-tok]"); if (!f) return;
+    fields[f.dataset.tok] = f.value;
+    save(LS_FIELDS, fields);
+    // re-render only the dialogue, keeping focus and caret position
+    const focusTok = f.dataset.tok, pos = f.selectionStart;
+    const turns = mainEl.querySelectorAll(".turn");
+    const p = DATA.phases.find(x => x.id === current);
+    const all = p.groups.flatMap(g => (g.blocks || []).filter(b => b.type === "exchange").flatMap(b => b.turns));
+    turns.forEach((t, i) => { if (all[i]) t.querySelector(".say").innerHTML = sayHTML(all[i].text); });
+    const again = mainEl.querySelector('input[data-tok="' + focusTok + '"]');
+    if (again && document.activeElement !== again) { again.focus(); again.setSelectionRange(pos, pos); }
+  });
+
+  mainEl.addEventListener("click", async e => {
+    const c = e.target.closest("button[data-copy]"); if (!c) return;
+    try { await navigator.clipboard.writeText(plain(c.dataset.copy)); c.textContent = "copied"; }
+    catch { c.textContent = "select it"; }
+    setTimeout(() => { c.textContent = "copy"; }, 1200);
+  });
+
+  document.getElementById("reset").addEventListener("click", () => {
+    if (!confirm("Clear every ticked item? The flight worksheet is kept.")) return;
+    ticks = {}; save(LS_TICKS, ticks); render();
+  });
+
+  const themeButton = document.getElementById("theme");
+  const syncThemeButton = () => {
+    const isDark = document.documentElement.dataset.theme === "dark";
+    themeButton.textContent = isDark ? "Light mode" : "Dark mode";
+    themeButton.setAttribute("aria-pressed", String(!isDark));
+    document.querySelector('meta[name="theme-color"]').content = isDark ? "#091216" : "#edf3f4";
+  };
+  themeButton.addEventListener("click", () => {
+    const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next; save(LS_THEME, next); syncThemeButton();
+  });
+
+  /* ----- keyboard ----- */
+  let cursor = -1;
+  document.addEventListener("keydown", e => {
+    if (/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+    const boxes = [...mainEl.querySelectorAll("input[type=checkbox]")];
+    if (e.key >= "1" && e.key <= "9") {
+      const p = DATA.phases[+e.key - 1]; if (p) { current = p.id; cursor = -1; render(); }
+      return;
+    }
+    if (e.key === "j" || e.key === "k") {
+      if (!boxes.length) return;
+      cursor = Math.max(0, Math.min(boxes.length - 1, cursor + (e.key === "j" ? 1 : -1)));
+      boxes[cursor].focus(); boxes[cursor].closest("li").scrollIntoView({ block: "nearest" });
+      e.preventDefault();
+    }
+  });
+
+  syncThemeButton();
+  render();
+})();
+</script>
+</body>
+</html>

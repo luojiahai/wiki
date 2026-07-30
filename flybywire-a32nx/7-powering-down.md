@@ -1,41 +1,56 @@
-# Powering Down
+# 7 · Powering Down
 
 ## Parking at the Gate
 
-- [Parking Brake](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/parking-brake/): PARK BRK handle - set ON
-- [APU Bleed](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ac/#apu-bleed): APU BLEED pushbutton - set ON
-- [Engine Master Switches](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/engine/#eng-master-1-2): ENG MASTER 1 & 2 pushbuttons - set OFF
-- [External Power](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/elec/#ext-pwr): EXT PWR pushbutton - set ON if AVAIL
-- Lights:
-    - [Nose Lights](https://docs.flybywiresim.com/pilots-corner/a380x/a380x-briefing/flight-deck/ovhd/ext-lt/#nose): NOSE switch - set OFF
-    - [Runway Turnoff Lights](https://docs.flybywiresim.com/pilots-corner/a380x/a380x-briefing/flight-deck/ovhd/ext-lt/#rwy-turn-off): RWY TURN OFF switch - set OFF
-    - [Seat Belts Lights](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/signs/#seat-belts): SEAT BELTS sign - set OFF
-    - [Beacon Lights](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#beacon): BEACON switch - set OFF
+| Control | Action | Condition |
+| --- | --- | --- |
+| [PARK BRK](controls.md#parking-brake) handle | set **ON** | – |
+| [ENG ANTI ICE](controls.md#anti-ice) and [WING ANTI ICE](controls.md#anti-ice) | set **OFF** | – |
+| [APU BLEED](controls.md#auxiliary-power-unit-apu) pushbutton | set **ON** | before engine shutdown — keeps exhaust fumes out of the packs |
+| [EXT PWR](controls.md#electrical) pushbutton | set **ON** | if the APU is not available |
+| [ENG MASTER 1 & 2](controls.md#engine) switches | set **OFF** | not less than 3 min after high thrust |
+| [SEAT BELTS](controls.md#signs) sign | set **OFF** | – |
+| [BEACON](controls.md#exterior-lighting) switch | set **OFF** | once the engines have spooled down |
+| [NOSE](controls.md#exterior-lighting) switch | set **OFF** | – |
+| [RWY TURN OFF](controls.md#exterior-lighting) switch | set **OFF** | – |
+| [ATC mode](controls.md#atc-and-tcas) selector | set **STBY** | – |
+| [BRK FAN](controls.md#autobrake-and-gear) pushbutton | set **OFF** | if it was turned on |
 
 > [!NOTE]
-> flyPad: Perform PARKING checklist
+> Keep the engines at or near idle for **at least 3 minutes** before shutdown
+> after high-thrust operations. Normal taxi thrust and idle reverse do not count
+> as high thrust, so this is usually already satisfied.
+
+> [!NOTE]
+> flyPad: perform the **PARKING** checklist.
 
 ## Disembarking Passengers and Baggage
 
-- Enter flyPad / Ground / Services
-- Request Jet Bridge
-- Request Baggage Truck
+1. Open **flyPad / Ground / Services**.
+2. Request the jet bridge.
+3. Request the baggage truck.
 
 ## Securing the Aircraft
 
-- [Left Tank Pumps](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/fuel/#l-r-tk-pumps-1-2): L TK PUMPS 1 & 2 pushbuttons - set OFF
-- [Center Tank Pumps](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/fuel/#ctr-tk-pump-1-2): CTR TK PUMP 1 & 2 pushbuttons - set OFF
-- [Right Tank Pumps](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/fuel/#l-r-tk-pumps-1-2): R TK PUMPS 1 & 2 pushbuttons - set OFF
-- [ADIRS](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/adirs/): ADIR 1 & 2 & 3 selectors - set OFF
-- [Crew Oxygen Supply](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/oxygen/#crew-supply): CREW SUPPLY pushbutton - set OFF
-- [APU Bleed](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ac/#apu-bleed): APU BLEED pushbutton - set OFF
-- Lights:
-    - [No Smoking Lights](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/signs/#no-smoking): NO SMOKING sign - set OFF
-    - [Emergency Exit Lights](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/signs/#emer-exit-lt): EMER EXIT LT selector - set OFF
-    - [Navigation Lights](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#nav-logo): NAV & LOGO switch - set OFF
-- [APU Master Switch](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/apu/#master-sw): APU MASTER SW pushbutton - set OFF (wait 2 minutes for the APU FLAP door to close)
-- [External Power](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/elec/#ext-pwr): EXT PWR pushbutton - set OFF if turned on
-- [Battery](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/elec/#bat-1-2): BAT 1 & 2 pushbuttons - set OFF
+| Control | Action | Condition |
+| --- | --- | --- |
+| [L TK PUMPS 1 & 2](controls.md#fuel) pushbuttons | set **OFF** | – |
+| [CTR TK PUMP 1 & 2](controls.md#fuel) pushbuttons | set **OFF** | – |
+| [R TK PUMPS 1 & 2](controls.md#fuel) pushbuttons | set **OFF** | – |
+| [ADIR 1 & 2 & 3](controls.md#adirs) selectors | set **OFF** | – |
+| [CREW SUPPLY](controls.md#oxygen) pushbutton | set **OFF** | – |
+| [APU BLEED](controls.md#auxiliary-power-unit-apu) pushbutton | set **OFF** | – |
+| [NO SMOKING](controls.md#signs) sign | set **OFF** | – |
+| [EMER EXIT LT](controls.md#signs) selector | set **OFF** | – |
+| [NAV & LOGO](controls.md#exterior-lighting) switch | set **OFF** | – |
+| [APU MASTER SW](controls.md#auxiliary-power-unit-apu) pushbutton | set **OFF** | wait 2 min for the APU flap door to close |
+| [EXT PWR](controls.md#electrical) pushbutton | set **OFF** | if it was turned on |
+| [BAT 1 & 2](controls.md#electrical) pushbuttons | set **OFF** | – |
 
 > [!NOTE]
-> flyPad: Perform SECURING AIRCRAFT checklist
+> flyPad: perform the **SECURING AIRCRAFT** checklist.
+
+---
+
+Previous: [6 · After Landing and Taxi to Gate](6-after-landing-and-taxi-to-gate.md) ·
+[Index](README.md)

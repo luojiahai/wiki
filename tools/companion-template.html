@@ -1,0 +1,733 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#091216">
+<title>A32NX Flight Companion</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #091216;
+    --surface: #0f1a20;
+    --surface-raised: #142229;
+    --surface-active: #18313a;
+    --line: #26383f;
+    --line-strong: #3a5058;
+    --text: #e5eef0;
+    --muted: #9aabb0;
+    --faint: #6f8187;
+    --accent: #63c7db;
+    --accent-strong: #9ae5f1;
+    --condition: #e7ae59;
+    --complete: #70d2a3;
+    --danger: #ed8e80;
+    --header-bg: rgba(9, 18, 22, .92);
+    --shadow: 0 18px 50px rgba(1, 7, 9, .22);
+    --radius: 8px;
+    --sans: "Avenir Next", Avenir, "Segoe UI", Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, "JetBrains Mono", Menlo, Consolas, monospace;
+  }
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --bg: #edf3f4;
+    --surface: #f7faf9;
+    --surface-raised: #e5edef;
+    --surface-active: #d9e9ec;
+    --line: #c5d2d5;
+    --line-strong: #9fb2b7;
+    --text: #17252a;
+    --muted: #4f646a;
+    --faint: #687b81;
+    --accent: #087f95;
+    --accent-strong: #05697b;
+    --condition: #8a5907;
+    --complete: #16724a;
+    --danger: #a13c30;
+    --header-bg: rgba(237, 243, 244, .94);
+    --shadow: 0 18px 50px rgba(26, 48, 55, .09);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  html, body { margin: 0; min-height: 100%; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.55 var(--sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    transition: background-color .2s ease, color .2s ease;
+  }
+  button, input { font: inherit; }
+  button { color: inherit; }
+  a { color: inherit; }
+  ::selection { background: var(--accent); color: var(--bg); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .skip {
+    position: fixed; left: 16px; top: 12px; z-index: 100;
+    padding: 9px 12px; border-radius: var(--radius);
+    background: var(--accent); color: var(--bg); font-weight: 700;
+    transform: translateY(-160%);
+  }
+  .skip:focus { transform: translateY(0); }
+
+  /* ---------- header ---------- */
+  header {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--header-bg);
+    backdrop-filter: blur(18px) saturate(120%);
+    -webkit-backdrop-filter: blur(18px) saturate(120%);
+    border-bottom: 1px solid var(--line);
+  }
+  .hwrap {
+    width: min(100% - 32px, 1320px); min-height: 68px; margin: 0 auto;
+    display: flex; gap: 18px; align-items: center;
+  }
+  .brand {
+    display: flex; align-items: center; gap: 12px; min-width: 230px;
+    color: var(--text); text-decoration: none;
+  }
+  .brand-mark {
+    display: grid; place-items: center; width: 42px; height: 34px;
+    border: 1px solid var(--line-strong); border-radius: var(--radius);
+    color: var(--accent-strong); font: 750 11px/1 var(--mono); letter-spacing: -.03em;
+  }
+  .brand-copy { display: grid; gap: 1px; }
+  .brand-copy strong { font-size: 14px; line-height: 1.2; letter-spacing: -.01em; }
+  .brand-copy small { color: var(--muted); font-size: 11px; line-height: 1.2; }
+  .spacer { flex: 1 1 auto; }
+  .flight-total {
+    display: grid; gap: 5px; width: min(230px, 22vw);
+  }
+  .total-row {
+    display: flex; align-items: center; justify-content: space-between;
+    color: var(--muted); font-size: 11px;
+  }
+  .total { color: var(--text); font: 650 11px/1 var(--mono); white-space: nowrap; }
+  .overall-track {
+    height: 3px; overflow: hidden; background: var(--surface-raised);
+    border-radius: var(--radius);
+  }
+  .overall-track i {
+    display: block; width: 0; height: 100%; background: var(--complete);
+    transition: width .25s cubic-bezier(.16, 1, .3, 1);
+  }
+  .header-actions { display: flex; align-items: center; gap: 7px; }
+  button {
+    min-height: 38px; border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 8px 12px; background: var(--surface); cursor: pointer;
+    font-size: 12px; font-weight: 650; white-space: nowrap;
+    transition: border-color .16s ease, background-color .16s ease, transform .12s ease;
+  }
+  button:hover { border-color: var(--line-strong); background: var(--surface-raised); }
+  button:active { transform: translateY(1px); }
+  button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+  #reset:hover { border-color: color-mix(in srgb, var(--danger) 65%, var(--line)); color: var(--danger); }
+
+  /* ---------- layout ---------- */
+  .shell {
+    width: min(100% - 32px, 1320px); min-height: calc(100dvh - 68px);
+    margin: 0 auto; padding: 28px 0 104px;
+    display: grid; grid-template-columns: 270px minmax(0, 1fr); gap: clamp(28px, 5vw, 72px);
+    align-items: start;
+  }
+
+  .phase-rail { position: sticky; top: 96px; min-width: 0; }
+  .rail-label {
+    margin: 0 0 13px; color: var(--faint); font: 650 10px/1 var(--mono);
+    letter-spacing: .12em; text-transform: uppercase;
+  }
+  nav.phases { display: flex; min-width: 0; max-width: 100%; flex-direction: column; gap: 4px; }
+  nav.phases button {
+    width: 100%; min-height: 48px; padding: 8px 10px;
+    display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 9px; align-items: center;
+    border-color: transparent; background: transparent; text-align: left;
+    color: var(--muted); font-size: 13px; font-weight: 560;
+  }
+  nav.phases button:hover { color: var(--text); background: var(--surface); }
+  nav.phases button[aria-current="true"] {
+    border-color: var(--line-strong); background: var(--surface-active); color: var(--text);
+    box-shadow: var(--shadow);
+  }
+  nav.phases .num {
+    display: grid; place-items: center; width: 28px; height: 28px;
+    border: 1px solid var(--line); border-radius: var(--radius);
+    color: var(--faint); font: 650 10px/1 var(--mono);
+  }
+  nav.phases button[aria-current="true"] .num {
+    border-color: var(--accent); color: var(--accent-strong);
+  }
+  nav.phases .pct { color: var(--faint); font: 600 10px/1 var(--mono); }
+  nav.phases button[data-complete="true"] .pct { color: var(--complete); }
+  .rail-note {
+    margin: 18px 10px 0; color: var(--faint); font-size: 11px; line-height: 1.5;
+  }
+  .rail-note kbd { margin: 0 2px; }
+
+  main { min-width: 0; }
+  .page-head {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(190px, 30%); gap: 24px;
+    align-items: end; margin: 4px 0 34px;
+    animation: enter .42s cubic-bezier(.16, 1, .3, 1) both;
+  }
+  .page-copy { min-width: 0; }
+  h1.page {
+    max-width: 780px; margin: 0;
+    font-size: clamp(34px, 4.4vw, 58px); line-height: .98; letter-spacing: -.045em;
+    font-weight: 640;
+  }
+  .lede { max-width: 62ch; margin: 14px 0 0; color: var(--muted); font-size: 14px; }
+  .phase-status {
+    display: grid; gap: 10px; align-self: center; padding: 15px 0 5px;
+  }
+  .phase-status-row {
+    display: flex; justify-content: space-between; gap: 14px;
+    color: var(--muted); font-size: 11px;
+  }
+  .phase-status-row strong { color: var(--text); font: 650 11px/1 var(--mono); }
+  .bar { height: 6px; overflow: hidden; margin: 0; background: var(--surface-raised); border-radius: var(--radius); }
+  .bar i {
+    display: block; width: 0; height: 100%; background: var(--complete);
+    transition: width .25s cubic-bezier(.16, 1, .3, 1);
+  }
+
+  /* ---------- sections ---------- */
+  section.grp {
+    display: grid; grid-template-columns: 170px minmax(0, 1fr); column-gap: 28px;
+    margin: 0 0 38px;
+    animation: enter .42s cubic-bezier(.16, 1, .3, 1) .04s both;
+  }
+  section.grp > h2 {
+    grid-column: 1; margin: 4px 0 0; color: var(--muted);
+    font-size: 12px; line-height: 1.35; font-weight: 650;
+  }
+  section.grp > h3 {
+    grid-column: 2; margin: 20px 0 8px; color: var(--text);
+    font-size: 13px; line-height: 1.4; font-weight: 680;
+  }
+  section.grp > h3:first-child { margin-top: 2px; }
+  section.grp > :not(h2):not(h3) { grid-column: 2; min-width: 0; }
+  .note {
+    margin: 10px 0; padding: 13px 15px;
+    border: 1px solid color-mix(in srgb, var(--condition) 42%, var(--line));
+    border-left: 3px solid var(--condition); border-radius: var(--radius);
+    background: color-mix(in srgb, var(--condition) 7%, var(--surface));
+    color: var(--text); font-size: 13px;
+  }
+  .para { max-width: 72ch; margin: 5px 0 14px; color: var(--muted); font-size: 13.5px; }
+
+  /* ---------- checklist ---------- */
+  ul.items {
+    list-style: none; margin: 0; padding: 0;
+    border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
+    background: var(--surface);
+  }
+  ul.items li + li { border-top: 1px solid var(--line); }
+  ul.items label {
+    display: grid; grid-template-columns: 24px minmax(150px, 1.05fr) minmax(140px, .9fr) minmax(90px, auto);
+    gap: 14px; align-items: center; min-height: 52px; padding: 9px 14px;
+    cursor: pointer; transition: background-color .14s ease;
+  }
+  ul.items label:hover { background: var(--surface-raised); }
+  ul.items input {
+    appearance: none; width: 20px; height: 20px; margin: 0;
+    border: 1.5px solid var(--line-strong); border-radius: calc(var(--radius) - 3px);
+    background: var(--bg); cursor: pointer; position: relative;
+    transition: border-color .14s ease, background-color .14s ease, transform .12s ease;
+  }
+  ul.items input:hover { border-color: var(--accent); transform: scale(1.04); }
+  ul.items input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  ul.items input:checked { background: var(--complete); border-color: var(--complete); }
+  ul.items input:checked::after {
+    content: ""; position: absolute; left: 6px; top: 2px; width: 5px; height: 10px;
+    border: solid var(--bg); border-width: 0 2px 2px 0; transform: rotate(45deg);
+  }
+  .ctl { color: var(--text); font: 590 12.5px/1.4 var(--mono); }
+  .ctl a {
+    text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 50%, transparent);
+    text-underline-offset: 3px;
+  }
+  .ctl a:hover { color: var(--accent-strong); text-decoration-color: currentColor; }
+  .act { color: var(--muted); font-size: 13px; }
+  .act b {
+    color: var(--accent-strong); font: 690 12px/1.4 var(--mono); letter-spacing: .015em;
+  }
+  .verb { color: var(--muted); }
+  .cond {
+    max-width: 220px; color: var(--condition); font: 560 11px/1.45 var(--mono);
+    text-align: right;
+  }
+  li[data-done="true"] { background: color-mix(in srgb, var(--complete) 5%, var(--surface)); }
+  li[data-done="true"] .ctl, li[data-done="true"] .act, li[data-done="true"] .cond { opacity: .5; }
+  li[data-done="true"] .act b { color: var(--complete); }
+
+  ol.steps {
+    margin: 0; padding: 0; list-style: none; counter-reset: s;
+    border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
+    background: var(--surface);
+  }
+  ol.steps li {
+    counter-increment: s; position: relative; min-height: 50px;
+    padding: 13px 16px 13px 52px; font-size: 13px;
+  }
+  ol.steps li + li { border-top: 1px solid var(--line); }
+  ol.steps li::before {
+    content: counter(s); position: absolute; left: 15px; top: 11px;
+    display: grid; place-items: center; width: 26px; height: 26px;
+    border: 1px solid var(--line); border-radius: var(--radius);
+    color: var(--muted); font: 650 10px/1 var(--mono);
+  }
+  ol.steps b { color: var(--accent-strong); font: 650 12px/1.4 var(--mono); }
+
+  /* ---------- matrix ---------- */
+  .scroll {
+    overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius);
+    background: var(--surface);
+  }
+  table.mx { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+  table.mx th, table.mx td { padding: 11px 13px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  table.mx thead th {
+    position: sticky; top: 0; background: var(--surface-raised); color: var(--muted);
+    font: 650 10px/1.3 var(--mono); letter-spacing: .06em; text-transform: uppercase;
+  }
+  table.mx tbody th { color: var(--text); font: 620 11.5px/1.4 var(--mono); }
+  table.mx td { color: var(--accent-strong); font: 560 11.5px/1.4 var(--mono); }
+  table.mx td.nil { color: var(--faint); }
+  table.mx td.soft { color: var(--condition); }
+  table.mx tr:last-child th, table.mx tr:last-child td { border-bottom: 0; }
+
+  /* ---------- ATC ---------- */
+  .atc-layout { display: grid; grid-template-columns: minmax(260px, .72fr) minmax(0, 1.45fr); gap: 34px; align-items: start; }
+  .atc-tools { position: sticky; top: 96px; min-width: 0; }
+  .atc-content { min-width: 0; }
+  .setup {
+    margin: 0; padding: 18px; border: 1px solid var(--line);
+    border-radius: var(--radius); background: var(--surface);
+    max-height: calc(100dvh - 120px); overflow: auto;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+  .setup h2 { margin: 0 0 14px; color: var(--text); font-size: 14px; }
+  .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+  .fields label { display: flex; flex-direction: column; gap: 5px; color: var(--muted); font-size: 11px; }
+  .fields input {
+    width: 100%; min-width: 0; min-height: 39px; padding: 8px 9px;
+    border: 1px solid var(--line); border-radius: var(--radius);
+    background: var(--bg); color: var(--text); font: 12px/1.3 var(--mono);
+  }
+  .fields input::placeholder { color: var(--faint); opacity: 1; }
+  .fields input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+  .chain {
+    display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 14px 0 0;
+    color: var(--muted); font: 10px/1.3 var(--mono);
+  }
+  .chain span { padding: 5px 7px; border: 1px solid var(--line); border-radius: var(--radius); }
+  .chain i { color: var(--faint); font-style: normal; }
+  .exchange { margin: 0 0 30px; }
+  .exchange h3 { margin: 0 0 10px; color: var(--text); font-size: 13px; font-weight: 680; }
+  .turn {
+    display: grid; grid-template-columns: 58px minmax(0, 1fr) 54px; gap: 10px; align-items: start;
+    padding: 6px 0;
+  }
+  .who {
+    padding-top: 11px; color: var(--muted); text-align: right;
+    font: 650 9.5px/1.5 var(--mono); letter-spacing: .06em; text-transform: uppercase;
+  }
+  .turn.you .who { color: var(--accent); }
+  .turn.atc .who { color: var(--condition); }
+  .say {
+    min-height: 42px; padding: 10px 12px; border: 1px solid var(--line);
+    border-radius: var(--radius); background: var(--surface); font-size: 13px;
+  }
+  .turn.you .say { border-left: 3px solid var(--accent); }
+  .turn.atc .say { border-left: 3px solid var(--condition); }
+  .say .tok {
+    padding: 1px 4px; border-radius: calc(var(--radius) - 3px);
+    background: color-mix(in srgb, var(--condition) 12%, transparent);
+    color: var(--condition); font: 560 12px/1.4 var(--mono);
+  }
+  .say .fill { color: var(--accent-strong); font: 650 12px/1.4 var(--mono); }
+  .copy { min-height: 34px; margin-top: 4px; padding: 6px 8px; color: var(--muted); font: 600 10px/1 var(--mono); }
+  .rb { display: block; color: var(--faint); font-size: 9px; font-weight: 520; text-transform: none; letter-spacing: 0; }
+
+  footer.tips {
+    width: min(100% - 32px, 1320px); margin: -56px auto 0; padding: 0 0 28px 342px;
+    display: flex; flex-wrap: wrap; gap: 8px 18px; color: var(--faint); font-size: 11px;
+  }
+  footer.tips span { white-space: nowrap; }
+  kbd {
+    display: inline-grid; min-width: 21px; min-height: 20px; place-items: center;
+    margin-right: 3px; padding: 2px 5px; border: 1px solid var(--line);
+    border-bottom-color: var(--line-strong); border-radius: calc(var(--radius) - 3px);
+    background: var(--surface); color: var(--muted); font: 600 10px/1 var(--mono);
+  }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  @keyframes enter {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 1040px) {
+    .shell { grid-template-columns: 1fr; gap: 28px; padding-top: 18px; }
+    .phase-rail {
+      position: sticky; top: 68px; z-index: 20; margin: 0 -16px;
+      padding: 10px 16px; background: var(--header-bg);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    }
+    .rail-label, .rail-note { display: none; }
+    nav.phases { flex-direction: row; gap: 6px; overflow-x: auto; scrollbar-width: thin; }
+    nav.phases button { width: auto; min-width: max-content; min-height: 42px; grid-template-columns: 26px auto auto; }
+    nav.phases .num { width: 26px; height: 26px; }
+    footer.tips { margin-top: -56px; padding-left: 0; }
+    .flight-total { width: min(210px, 24vw); }
+  }
+
+  @media (max-width: 760px) {
+    .hwrap { width: min(100% - 24px, 1320px); min-height: 62px; gap: 8px; }
+    .brand { min-width: 0; margin-right: auto; }
+    .brand-mark { width: 39px; height: 32px; }
+    .brand-copy small, .flight-total, #reset { display: none; }
+    .header-actions { margin-left: 0; }
+    button { min-height: 36px; padding: 7px 10px; }
+    .shell { width: min(100% - 24px, 1320px); padding: 12px 0 92px; }
+    .phase-rail { top: 62px; margin: 0 -12px; padding: 8px 12px; }
+    nav.phases button { min-height: 40px; padding: 6px 8px; font-size: 12px; }
+    .page-head { grid-template-columns: 1fr; gap: 18px; margin: 14px 0 30px; }
+    h1.page { font-size: clamp(34px, 11vw, 48px); }
+    .lede { margin-top: 11px; font-size: 13px; }
+    .phase-status { padding: 0; }
+    section.grp { grid-template-columns: 1fr; margin-bottom: 32px; }
+    section.grp > h2, section.grp > h3, section.grp > :not(h2):not(h3) { grid-column: 1; }
+    section.grp > h2 { margin: 0 0 9px; font-size: 13px; color: var(--text); }
+    section.grp > h3 { margin: 18px 0 8px; }
+    ul.items label {
+      grid-template-columns: 24px minmax(0, 1fr); column-gap: 11px; row-gap: 3px;
+      min-height: 58px; padding: 10px 11px; align-items: start;
+    }
+    ul.items input { grid-row: 1 / span 3; margin-top: 1px; }
+    ul.items .ctl, ul.items .act, ul.items .cond { grid-column: 2; }
+    ul.items .cond { max-width: none; text-align: left; }
+    .atc-layout { grid-template-columns: 1fr; gap: 32px; }
+    .atc-tools { position: static; }
+    .setup { max-height: none; overflow: visible; }
+    .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    footer.tips { width: min(100% - 24px, 1320px); }
+  }
+
+  @media (max-width: 520px) {
+    .brand-copy strong { max-width: 110px; line-height: 1.1; }
+    #theme { font-size: 11px; }
+    nav.phases .pct { display: none; }
+    .fields { grid-template-columns: 1fr; }
+    .turn { grid-template-columns: 44px minmax(0, 1fr); gap: 8px; }
+    .who { padding-top: 10px; }
+    .copy { grid-column: 2; justify-self: end; margin: -2px 0 2px; }
+    footer.tips { gap: 7px 14px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: .01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: .01ms !important;
+    }
+  }
+
+  @supports not (backdrop-filter: blur(1px)) {
+    header, .phase-rail { background: var(--bg); }
+  }
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to current phase</a>
+<header>
+  <div class="hwrap">
+    <a class="brand" href="#" aria-label="A32NX Flight Companion home">
+      <span class="brand-mark" aria-hidden="true">A32</span>
+      <span class="brand-copy">
+        <strong>Flight Companion</strong>
+        <small>FlyByWire A32NX procedures</small>
+      </span>
+    </a>
+    <div class="spacer"></div>
+    <div class="flight-total" aria-label="Overall flight progress">
+      <div class="total-row"><span>Flight progress</span><span class="total" id="total" aria-live="polite"></span></div>
+      <span class="overall-track" aria-hidden="true"><i id="overall-bar"></i></span>
+    </div>
+    <div class="header-actions">
+      <button id="reset" title="Clear every tick for a new flight">Reset flight</button>
+      <button id="theme" title="Switch color theme" aria-pressed="false">Light mode</button>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="phase-rail">
+    <p class="rail-label">Flight phases</p>
+    <nav class="phases" id="nav" aria-label="Flight phases"></nav>
+    <p class="rail-note"><kbd>J</kbd><kbd>K</kbd> move through checks<br><kbd>1</kbd>-<kbd>9</kbd> change phase</p>
+  </aside>
+  <main id="main" tabindex="-1"></main>
+</div>
+
+<footer class="tips">
+  <span><kbd>J</kbd><kbd>K</kbd> previous or next check</span>
+  <span><kbd>Space</kbd> mark complete</span>
+  <span><kbd>1</kbd>-<kbd>9</kbd> change phase</span>
+  <span>Progress saves in this browser</span>
+</footer>
+
+<script id="data" type="application/json">/*__DATA__*/</script>
+<script>
+(() => {
+  "use strict";
+  const DATA = JSON.parse(document.getElementById("data").textContent);
+  const LS_TICKS = "a32nx.ticks.v1";
+  const LS_FIELDS = "a32nx.fields.v1";
+  const LS_THEME = "a32nx.theme.v1";
+  const LS_PHASE = "a32nx.phase.v1";
+
+  const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
+  const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+
+  let ticks = load(LS_TICKS, {});
+  let fields = load(LS_FIELDS, {});
+  let current = load(LS_PHASE, DATA.phases[0].id);
+  if (!DATA.phases.some(p => p.id === current)) current = DATA.phases[0].id;
+
+  const theme = load(LS_THEME, window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+  document.documentElement.dataset.theme = theme;
+
+  const esc = s => String(s)
+    .replace(/[—–]/g, "-")
+    .replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  /* ----- inline markup already sanitised by the generator: {b:…} spans ----- */
+  const inline = frag => frag.map(n => {
+    if (n.t === "text") return esc(n.v);
+    if (n.t === "b") return "<b>" + esc(n.v) + "</b>";
+    if (n.t === "sub") return "<sub>" + esc(n.v) + "</sub>";
+    if (n.t === "link") return '<a href="' + esc(n.href) + '" target="_blank" rel="noopener">' + esc(n.v) + "</a>";
+    return "";
+  }).join("");
+
+  /* ----- checklist counting ----- */
+  const phaseItems = p => (p.groups || []).flatMap(g => (g.blocks || []).filter(b => b.type === "items").flatMap(b => b.items));
+  const countPhase = p => {
+    const it = phaseItems(p);
+    return { done: it.filter(i => ticks[i.id]).length, total: it.length };
+  };
+
+  /* ----- render: nav ----- */
+  const navEl = document.getElementById("nav");
+  function renderNav() {
+    navEl.innerHTML = DATA.phases.map((p, i) => {
+      const { done, total } = countPhase(p);
+      const pct = total ? Math.round(done / total * 100) : null;
+      return '<button data-id="' + p.id + '" aria-current="' + (p.id === current) + '"' +
+        (total && done === total ? ' data-complete="true"' : "") + '>' +
+        '<span class="num">' + (p.num || "·") + '</span>' +
+        '<span>' + esc(p.short) + '</span>' +
+        '<span class="pct">' + (pct === null ? "" : pct + "%") + '</span></button>';
+    }).join("");
+  }
+
+  function renderTotal() {
+    let d = 0, t = 0;
+    DATA.phases.forEach(p => { const c = countPhase(p); d += c.done; t += c.total; });
+    document.getElementById("total").textContent = t ? d + " / " + t : "";
+    document.getElementById("overall-bar").style.width = t ? (d / t * 100) + "%" : "0%";
+  }
+
+  /* ----- render: blocks ----- */
+  function blockHTML(b) {
+    if (b.type === "items") {
+      return '<ul class="items">' + b.items.map(i =>
+        '<li data-done="' + !!ticks[i.id] + '" data-item="' + i.id + '">' +
+          '<label><input type="checkbox" ' + (ticks[i.id] ? "checked" : "") + ' data-id="' + i.id + '">' +
+          '<span class="ctl">' + inline(i.control) + '</span>' +
+          '<span class="act">' + inline(i.action) + '</span>' +
+          '<span class="cond">' + (i.condition ? inline(i.condition) : "") + '</span>' +
+        '</label></li>').join("") + '</ul>';
+    }
+    if (b.type === "steps") {
+      return '<ol class="steps">' + b.items.map(s => "<li>" + inline(s) + "</li>").join("") + "</ol>";
+    }
+    if (b.type === "note") return '<div class="note">' + inline(b.frag) + "</div>";
+    if (b.type === "para") return '<p class="para">' + inline(b.frag) + "</p>";
+    if (b.type === "matrix") {
+      return '<div class="scroll"><table class="mx"><thead><tr>' +
+        b.head.map((h, i) => "<th>" + esc(h) + "</th>").join("") + "</tr></thead><tbody>" +
+        b.rows.map(r => "<tr>" + r.map((c, i) => {
+          if (i === 0) return "<th>" + esc(c) + "</th>";
+          const nil = c === "–" || c === "-" || c === "";
+          const soft = /required/i.test(c);
+          return '<td class="' + (nil ? "nil" : soft ? "soft" : "") + '">' + esc(nil ? "-" : c) + "</td>";
+        }).join("") + "</tr>").join("") + "</tbody></table></div>";
+    }
+    return "";
+  }
+
+  /* ----- ATC substitution ----- */
+  function sayHTML(text) {
+    return esc(text).replace(/\{([A-Z0-9 _+]+)\}/g, (m, tok) => {
+      const v = (fields[tok] || "").trim();
+      return v ? '<span class="fill">' + esc(v) + "</span>"
+               : '<span class="tok">' + esc(tok.toLowerCase()) + "</span>";
+    });
+  }
+  function plain(text) {
+    return text.replace(/\{([A-Z0-9 _+]+)\}/g, (m, tok) => (fields[tok] || "").trim() || m);
+  }
+
+  function atcHTML(p) {
+    let chain = "";
+    if (p.chain) {
+      chain = '<div class="chain" aria-label="ATC handoff sequence">' + p.chain.map((c, i) =>
+        (i ? '<i>→</i>' : "") + "<span>" + esc(c) + "</span>").join("") + "</div>";
+    }
+    const tools = '<div class="setup"><h2>Flight worksheet</h2><div class="fields">' +
+      DATA.tokens.map(t =>
+        '<label>' + esc(t.label) + '<input data-tok="' + esc(t.key) + '" value="' +
+        esc(fields[t.key] || "") + '" placeholder="' + esc(t.key.toLowerCase()) + '" spellcheck="false"></label>'
+      ).join("") + "</div>" + chain + "</div>";
+
+    const content = p.groups.map(g => {
+      let s = '<section class="grp"><h2>' + esc(g.title) + "</h2>";
+      s += (g.blocks || []).map(b => {
+        if (b.type === "exchange") {
+          return '<div class="exchange">' + (b.title ? "<h3>" + esc(b.title) + "</h3>" : "") +
+            b.turns.map(t =>
+              '<div class="turn ' + (t.who === "You" ? "you" : "atc") + '">' +
+                '<span class="who">' + esc(t.who) + (t.tag ? '<span class="rb">' + esc(t.tag) + "</span>" : "") + "</span>" +
+                '<span class="say">' + sayHTML(t.text) + "</span>" +
+                '<button class="copy" data-copy="' + esc(t.text) + '">copy</button>' +
+              "</div>").join("") + "</div>";
+        }
+        return blockHTML(b);
+      }).join("");
+      return s + "</section>";
+    }).join("");
+    return '<div class="atc-layout"><aside class="atc-tools">' + tools +
+      '</aside><div class="atc-content">' + content + "</div></div>";
+  }
+
+  /* ----- render: page ----- */
+  const mainEl = document.getElementById("main");
+  function render() {
+    const p = DATA.phases.find(x => x.id === current);
+    const { done, total } = countPhase(p);
+    let html = '<div class="page-head"><div class="page-copy"><h1 class="page">' + esc(p.short) + "</h1>";
+    if (p.lede) html += '<p class="lede">' + esc(p.lede) + "</p>";
+    html += "</div>";
+    if (total) {
+      const pct = Math.round(done / total * 100);
+      html += '<div class="phase-status"><div class="phase-status-row"><span>Phase progress</span><strong>' +
+        done + " / " + total + '</strong></div><div class="bar" role="progressbar" aria-label="' +
+        esc(p.short) + ' progress" aria-valuemin="0" aria-valuemax="' + total + '" aria-valuenow="' + done +
+        '"><i style="width:' + pct + '%"></i></div></div>';
+    }
+    html += "</div>";
+
+    if (p.kind === "atc") html += atcHTML(p);
+    else html += p.groups.map(g =>
+      '<section class="grp">' +
+        (g.title ? (g.level === 3 ? "<h3>" : "<h2>") + esc(g.title) + (g.level === 3 ? "</h3>" : "</h2>") : "") +
+        (g.blocks || []).map(blockHTML).join("") +
+      "</section>").join("");
+
+    mainEl.innerHTML = html;
+    renderNav(); renderTotal();
+    save(LS_PHASE, current);
+    document.querySelectorAll("nav.phases [aria-current=true]")[0]?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }
+
+  /* ----- events ----- */
+  navEl.addEventListener("click", e => {
+    const b = e.target.closest("button[data-id]"); if (!b) return;
+    current = b.dataset.id; window.scrollTo({ top: 0 }); render();
+  });
+
+  mainEl.addEventListener("change", e => {
+    const cb = e.target.closest("input[type=checkbox][data-id]"); if (!cb) return;
+    ticks[cb.dataset.id] = cb.checked;
+    if (!cb.checked) delete ticks[cb.dataset.id];
+    save(LS_TICKS, ticks);
+    cb.closest("li").dataset.done = cb.checked;
+    const p = DATA.phases.find(x => x.id === current);
+    const { done, total } = countPhase(p);
+    const bar = mainEl.querySelector(".bar");
+    if (bar) {
+      bar.setAttribute("aria-valuenow", done);
+      bar.querySelector("i").style.width = (done / total * 100) + "%";
+      const status = mainEl.querySelector(".phase-status-row strong");
+      if (status) status.textContent = done + " / " + total;
+    }
+    renderNav(); renderTotal();
+  });
+
+  mainEl.addEventListener("input", e => {
+    const f = e.target.closest("input[data-tok]"); if (!f) return;
+    fields[f.dataset.tok] = f.value;
+    save(LS_FIELDS, fields);
+    // re-render only the dialogue, keeping focus and caret position
+    const focusTok = f.dataset.tok, pos = f.selectionStart;
+    const turns = mainEl.querySelectorAll(".turn");
+    const p = DATA.phases.find(x => x.id === current);
+    const all = p.groups.flatMap(g => (g.blocks || []).filter(b => b.type === "exchange").flatMap(b => b.turns));
+    turns.forEach((t, i) => { if (all[i]) t.querySelector(".say").innerHTML = sayHTML(all[i].text); });
+    const again = mainEl.querySelector('input[data-tok="' + focusTok + '"]');
+    if (again && document.activeElement !== again) { again.focus(); again.setSelectionRange(pos, pos); }
+  });
+
+  mainEl.addEventListener("click", async e => {
+    const c = e.target.closest("button[data-copy]"); if (!c) return;
+    try { await navigator.clipboard.writeText(plain(c.dataset.copy)); c.textContent = "copied"; }
+    catch { c.textContent = "select it"; }
+    setTimeout(() => { c.textContent = "copy"; }, 1200);
+  });
+
+  document.getElementById("reset").addEventListener("click", () => {
+    if (!confirm("Clear every ticked item? The flight worksheet is kept.")) return;
+    ticks = {}; save(LS_TICKS, ticks); render();
+  });
+
+  const themeButton = document.getElementById("theme");
+  const syncThemeButton = () => {
+    const isDark = document.documentElement.dataset.theme === "dark";
+    themeButton.textContent = isDark ? "Light mode" : "Dark mode";
+    themeButton.setAttribute("aria-pressed", String(!isDark));
+    document.querySelector('meta[name="theme-color"]').content = isDark ? "#091216" : "#edf3f4";
+  };
+  themeButton.addEventListener("click", () => {
+    const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next; save(LS_THEME, next); syncThemeButton();
+  });
+
+  /* ----- keyboard ----- */
+  let cursor = -1;
+  document.addEventListener("keydown", e => {
+    if (/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+    const boxes = [...mainEl.querySelectorAll("input[type=checkbox]")];
+    if (e.key >= "1" && e.key <= "9") {
+      const p = DATA.phases[+e.key - 1]; if (p) { current = p.id; cursor = -1; render(); }
+      return;
+    }
+    if (e.key === "j" || e.key === "k") {
+      if (!boxes.length) return;
+      cursor = Math.max(0, Math.min(boxes.length - 1, cursor + (e.key === "j" ? 1 : -1)));
+      boxes[cursor].focus(); boxes[cursor].closest("li").scrollIntoView({ block: "nearest" });
+      e.preventDefault();
+    }
+  });
+
+  syncThemeButton();
+  render();
+})();
+</script>
+</body>
+</html>

@@ -1,67 +1,88 @@
-# Takeoff, Climb and Cruise
+# 4 · Takeoff, Climb and Cruise
 
-## Lineup
+## Down to the Line
 
-### Down to the line (before Takeoff Clearance)
+Holding short, before takeoff clearance. All of this can be done while you wait.
 
-- Hold at a runway holding point
-- [Parking Brake](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/parking-brake/): PARK BRK handle - set ON
-- [Altitude selector](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/fcu/#altitude-selector-knob-inner-and-outer): ALT selector - verify cleared altitude
-- [Weather Radar System](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/radar/#radar): SYS switch - verify 1
-- [Predictive Windshear System](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/radar/#pws): PWS switch - verify AUTO
-- [ATC Mode](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/atc-tcas/#mode-selector): ATC mode selector - verify AUTO or ON
-- [Altitude Reporting](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/atc-tcas/#alt-rptg-switch): ALT RPTG selector - verify ON
-- [Autobrake](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/front/autobrake-gear/#autobrk): AUTO/BRK - verify MAX
-- [Call All Cabin Crew](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/calls/#all): CALLS ALL pushbutton - press
-- [Takeoff Config](https://docs.flybywiresim.com/pilots-corner/a380x/a380x-briefing/flight-deck/pedestal/ecam-cp/#to-config): T.O CONFIG pushbutton - press to TEST
-- Request takeoff clearance
+| Control | Action | Condition |
+| --- | --- | --- |
+| [PARK BRK](controls.md#parking-brake) handle | set **ON** | at the holding point |
+| [ALT](controls.md#flight-control-unit-fcu) selector | verify **cleared altitude** | – |
+| [SYS](controls.md#radar) switch | verify **1** | – |
+| [PWS](controls.md#radar) switch | verify **AUTO** | – |
+| [ATC mode](controls.md#atc-and-tcas) selector | verify **AUTO** or **ON** | – |
+| [ALT RPTG](controls.md#atc-and-tcas) switch | verify **ON** | – |
+| [AUTO/BRK](controls.md#autobrake-and-gear) | verify **MAX** | – |
+| [CALLS ALL](controls.md#calls) pushbutton | press | cabin crew advisory |
+| [T.O CONFIG](controls.md#ecam-control-panel) pushbutton | press to **TEST** | expect no warning |
+
+Then request takeoff clearance —
+[ATC Communications › Tower, departure](../vatsim/atc-communications.md#3--tower-departure).
 
 > [!NOTE]
-> flyPad: Perform LINE-UP checklist
+> flyPad: perform the **LINE-UP** checklist.
 
-## Takeoff
+## Below the Line
 
-### Below the line (after Takeoff Clearance)
+After takeoff clearance.
 
-- [Pneumatic Air Cycle Kit](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ac/#pack-1-2): PACK 1 & 2 - set as required
-- Lights:
-    - [Runway Turnoff Lights](https://docs.flybywiresim.com/pilots-corner/a380x/a380x-briefing/flight-deck/ovhd/ext-lt/#rwy-turn-off): RWY TURN OFF switch - set ON
-    - [Nose Lights](https://docs.flybywiresim.com/pilots-corner/a380x/a380x-briefing/flight-deck/ovhd/ext-lt/#nose): NOSE switch- set T.O.
-    - [Landing Lights](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#land-l-r): LAND L & R switches - set both ON
-    - [Strobe Lights](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#strobe): STROBE switch - set ON or AUTO
-    - [Beacon Lights](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#beacon): BEACON switch - set ON
-    - [Navigation Lights](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#nav-logo): NAV & LOGO switch - set ON
-    - [Wing Lights](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#wing): WING switch - set OFF
-- [TCAS Mode](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/atc-tcas/#tcas-mode): TACS mode selector- set TA/RA
+| Control | Action | Condition |
+| --- | --- | --- |
+| [PACK 1 & 2](controls.md#air-conditioning-and-pressurisation) | set **OFF** | improves TOGA performance [^packs] |
+| [RWY TURN OFF](controls.md#exterior-lighting) switch | set **ON** | – |
+| [NOSE](controls.md#exterior-lighting) switch | set **T.O.** | – |
+| [LAND L & R](controls.md#exterior-lighting) switches | set both **ON** | – |
+| [STROBE](controls.md#exterior-lighting) switch | set **ON** | – |
+| [NAV & LOGO](controls.md#exterior-lighting) switch | set **ON** | – |
+| [WING](controls.md#exterior-lighting) switch | set **OFF** | – |
+| [TCAS mode](controls.md#atc-and-tcas) selector | set **TA/RA** | – |
 
-### Taking off
+[^packs]: The SOP recommends packs OFF *or* APU bleed ON for takeoff — both
+reduce takeoff EGT. Do not use APU bleed if wing anti-ice is on. The packs go
+back ON at thrust reduction altitude, below.
 
-- [Parking Brake](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/parking-brake/): PARK BRK handle - set OFF
-- Hold down manual brakes
-- [Thrust Lever](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/thrust-pitch-trim/): THRUST lever - set 50% until both engines are stabilized
-- Release manual brakes
-- [Thrust Lever](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/thrust-pitch-trim/): THRUST lever - set TOGA
-- Pull sidestick at VR speed
-- [Gear](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/front/autobrake-gear/): LANDING GEAR lever - set UP
+## Taking Off
+
+1. [PARK BRK](controls.md#parking-brake) handle — set **OFF**.
+2. Hold the manual brakes down.
+3. [THRUST](controls.md#thrust-and-trim) levers — set **50 %**, wait for both
+   engines to stabilise.
+4. Release the manual brakes.
+5. [THRUST](controls.md#thrust-and-trim) levers — set **TOGA**.
+6. At **VR**, pull the sidestick.
+7. [LANDING GEAR](controls.md#autobrake-and-gear) lever — set **UP** once
+   positive rate is established.
 
 ## Initial Climb
 
-- [Thrust Lever](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/thrust-pitch-trim/): THRUST lever - set CL when (passing 1500ft above runway) flashing LVR CLB
-- [Autopilot](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/fcu/#ap1-ap2-pushbuttons): AP 1 pushbutton - press
-- [Flaps](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/flaps/): FLAPS lever - set 0 when reaching S-speed
-- Lights:
-    - [Runway Turnoff Lights](https://docs.flybywiresim.com/pilots-corner/a380x/a380x-briefing/flight-deck/ovhd/ext-lt/#rwy-turn-off): RWY TURN OFF switch - set OFF
-    - [Nose Lights](https://docs.flybywiresim.com/pilots-corner/a380x/a380x-briefing/flight-deck/ovhd/ext-lt/#nose): NOSE switch - set OFF
-- [Speed Brake](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/speedbrake/): SPEED BRAKE lever - set RET
-- [Barometer Reference](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/efis_control/#barometer-reference-display-window): BAROMETRIC REFERENCE - set STD when flashing in PFD
+| Control | Action | Trigger |
+| --- | --- | --- |
+| [THRUST](controls.md#thrust-and-trim) levers | set **CL** | flashing **LVR CLB**, around 1,500 ft AGL |
+| [PACK 1 & 2](controls.md#air-conditioning-and-pressurisation) | set **ON** | PACK 2 at least 10 s after PACK 1 |
+| [AP 1](controls.md#flight-control-unit-fcu) pushbutton | press | any time above 100 ft AGL |
+| [FLAPS](controls.md#flaps-and-speed-brake) lever | set **0** | at **S speed** |
+| [RWY TURN OFF](controls.md#exterior-lighting) switch | set **OFF** | – |
+| [NOSE](controls.md#exterior-lighting) switch | set **OFF** | – |
+| [SPEED BRAKE](controls.md#flaps-and-speed-brake) lever | set **RET** | – |
+| [BARO REF](controls.md#efis-control-panel) | set **STD** | when flashing on the PFD |
 
-## Climb (at 10000ft)
+## Passing 10,000 ft
 
-- [Altitude selector](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/glareshield/fcu/#altitude-selector-knob-inner-and-outer): ALT selector - set cleared altitude
-- Lights:
-    - [Landing Lights](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ext-lt/#land-l-r): LAND L & R switches - set OFF
-    - [Seat Belts Lights](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/signs/#seat-belts): SEAT BELTS sign - set as required
+| Control | Action | Condition |
+| --- | --- | --- |
+| [ALT](controls.md#flight-control-unit-fcu) selector | set **cleared altitude** | – |
+| [LAND L & R](controls.md#exterior-lighting) switches | set **OFF** | – |
+| [SEAT BELTS](controls.md#signs) sign | set | as required |
 
 ## Cruise
 
-- Do nothing
+Nothing to do. Monitor fuel, watch for the next
+[Center handoff](../vatsim/atc-communications.md#4--departure-and-centre-climb-and-cruise),
+and start [descent planning](5-descent-approach-and-landing.md) before top of
+descent.
+
+---
+
+Previous: [3 · Engine Start and Taxi](3-engine-start-and-taxi.md) ·
+Next: [5 · Descent, Approach and Landing](5-descent-approach-and-landing.md) ·
+[Index](README.md)

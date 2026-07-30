@@ -1,50 +1,78 @@
-# Engine Start and Taxi
+# 3 · Engine Start and Taxi
+
+## Before Pushback
+
+Close all doors in **flyPad / Ground / Services**, then move the aircraft onto
+its own power:
+
+| Control | Action |
+| --- | --- |
+| [EXT PWR](controls.md#electrical) pushbutton | set **OFF** |
+| [APU BLEED](controls.md#auxiliary-power-unit-apu) pushbutton | set **ON** |
+| [BEACON](controls.md#exterior-lighting) switch | set **ON** |
+
+> [!NOTE]
+> BEACON goes ON at start clearance — before anything moves or turns — not at
+> takeoff. It is the "stay clear" signal to ground crew.
 
 ## Pushback
 
-### Before Pushback
-
-- Close all doors (flyPad / Ground / Services)
-- [External Power](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/elec/#ext-pwr): EXT PWR pushbutton - set OFF
-- [APU Bleed](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ac/#apu-bleed): APU BLEED pushbutton - set ON
-
-### Pushback
-
-- Request pushback clearance
-- Control (flyPad / Ground / Pushback)
+1. Request pushback clearance —
+   [ATC Communications › Ground](../vatsim/atc-communications.md#2--ground-pushback-and-taxi).
+2. Control the pushback from **flyPad / Ground / Pushback**.
 
 ## Engine Start
 
-- [Engine Mode](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/engine/#eng-mode-selector): ENG MODE selector - set IGN/START
-- [Engine Master Switch](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/engine/#eng-master-1-2): ENG MASTER 1 switch - set ON (wait for AVAIL)
-- [Engine Master Switch](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/engine/#eng-master-1-2): ENG MASTER 2 switch - set ON (wait for AVAIL)
+| Control | Action | Wait for |
+| --- | --- | --- |
+| [ENG MODE](controls.md#engine) selector | set **IGN/START** | **COOLING** on the E/WD |
+| [ENG MASTER 2](controls.md#engine) switch | set **ON** | **AVAIL** |
+| [ENG MASTER 1](controls.md#engine) switch | set **ON** | **AVAIL** |
+
+> [!NOTE]
+> Engine **2 starts first**, then engine 1 — starting 2 first pressurises the
+> yellow hydraulic system. At idle, expect roughly 19 % N1, 68 % N2, 520 °C EGT.
 
 ## After Engine Start
 
-- [Engine Mode](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/engine/#eng-mode-selector): ENG MODE selector - set NORM
-- [Flaps](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/flaps/): FLAPS lever - set as planned
-- [Speed Brake](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/speedbrake/): SPEED BRAKE lever - set ARM
-- [APU Bleed](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/ac/#apu-bleed): APU BLEED pushbutton - set OFF
-- [APU Master Switch](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/apu/#master-sw): APU MASTER SW pushbutton - set OFF
-- [Engine Anti-Ice](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/anti-ice/#eng-1-2): ENG ANTI ICE pushbutton - set as required
-- [Wing Anti-Ice](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/ovhd/anti-ice/#wing-anti-ice): WING ANTI ICE pushbutton - set as required
-- [Pitch Trim](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/thrust-pitch-trim/#pitch-trim-wheel): PITCH TRIM handwheel - set CHECK
-- [Rudder Trim](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/rudder-trim/): RUD TRIM position indication - set ZERO
+| Control | Action | Condition |
+| --- | --- | --- |
+| [ENG MODE](controls.md#engine) selector | set **NORM** | – |
+| [FLAPS](controls.md#flaps-and-speed-brake) lever | set as planned | – |
+| [SPEED BRAKE](controls.md#flaps-and-speed-brake) lever | set **ARM** | – |
+| [APU BLEED](controls.md#auxiliary-power-unit-apu) pushbutton | set **OFF** | – |
+| [APU MASTER SW](controls.md#auxiliary-power-unit-apu) pushbutton | set **OFF** | – |
+| [ENG ANTI ICE](controls.md#anti-ice) pushbutton | set | as required |
+| [WING ANTI ICE](controls.md#anti-ice) pushbutton | set | as required |
+| [PITCH TRIM](controls.md#thrust-and-trim) handwheel | check | – |
+| [RUD TRIM](controls.md#thrust-and-trim) indication | verify **ZERO** | – |
+
+Then check the flight controls: press the
+[F/CTL](controls.md#ecam-control-panel) pushbutton on the ECAM control panel and
+sweep the sidestick and rudder through full travel.
 
 > [!NOTE]
-> flyPad: Perform AFTER START checklist
+> Allow **5 minutes between engine start and takeoff** to avoid thermal shock.
+> Taxi time counts toward it, so this rarely holds you up.
 
-## Performing a Flight Controls Check
-
-- [Flight Controls Page](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/ecam-control/#system-page-buttons): F/CTL pushbutton - press
+> [!NOTE]
+> flyPad: perform the **AFTER START** checklist.
 
 ## Taxi
 
-- Request taxi clearance
-- Lights:
-    - [Runway Turnoff Lights](https://docs.flybywiresim.com/pilots-corner/a380x/a380x-briefing/flight-deck/ovhd/ext-lt/#rwy-turn-off): RWY TURN OFF switch - set ON
-    - [Nose Lights](https://docs.flybywiresim.com/pilots-corner/a380x/a380x-briefing/flight-deck/ovhd/ext-lt/#nose): NOSE switch - set TAXI
-- [Parking Brake](https://docs.flybywiresim.com/pilots-corner/a32nx/a32nx-briefing/flight-deck/pedestal/parking-brake/): PARK BRK handle - set OFF
+Request taxi clearance, then:
+
+| Control | Action |
+| --- | --- |
+| [RWY TURN OFF](controls.md#exterior-lighting) switch | set **ON** |
+| [NOSE](controls.md#exterior-lighting) switch | set **TAXI** |
+| [PARK BRK](controls.md#parking-brake) handle | set **OFF** |
 
 > [!NOTE]
-> flyPad: Perform TAXI checklist
+> flyPad: perform the **TAXI** checklist.
+
+---
+
+Previous: [2 · Preparing the MCDU](2-preparing-the-mcdu.md) ·
+Next: [4 · Takeoff, Climb and Cruise](4-takeoff-climb-and-cruise.md) ·
+[Index](README.md)
