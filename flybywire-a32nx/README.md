@@ -23,6 +23,8 @@ Personal procedures for flying the FlyByWire A32NX in MSFS, gate to gate.
 
 - [Controls Reference](controls.md) — every control, its panel, and its
   documentation link.
+- [Abbreviations](glossary.md) — what the flight deck labels stand for, from
+  `EXT PWR` to `TA/RA`.
 - [Lights by Phase](lights.md) — the full light state matrix.
 - [SOP Deltas](sop-deltas.md) — where this lean flow differs from the official
   84-page FlyByWire SOP, and what it leaves out.
@@ -34,7 +36,9 @@ Personal procedures for flying the FlyByWire A32NX in MSFS, gate to gate.
 `companion.html` is an interactive version of everything above, generated from
 these markdown files — tick items off as you fly, on a second monitor or tablet.
 Progress is saved in the browser, and the ATC worksheet fills the radio calls in
-for you.
+for you. Every abbreviation carries its full name underneath — *external power*
+under `EXT PWR`, *retracted* under `RET` — which the **Full names** button in the
+header hides once you no longer need it.
 
 ```sh
 node tools/build-companion.mjs   # rebuild after editing any note

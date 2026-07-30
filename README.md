@@ -5,7 +5,8 @@ Personal notes and procedures.
 ## Flight Simulation
 
 - [FlyByWire A32NX](flybywire-a32nx/README.md) — gate-to-gate procedures for the
-  A320neo in MSFS, plus a controls reference and light state matrix.
+  A320neo in MSFS, plus a controls reference, an abbreviations glossary and a
+  light state matrix.
 - [ATC Communications](vatsim/atc-communications.md) — VATSIM call-and-response
   scripts, station handoff chain, phonetic alphabet.
 

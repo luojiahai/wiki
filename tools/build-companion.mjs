@@ -35,7 +35,7 @@ function parseInline(md, resolveHref = () => null) {
   let rest = String(md).replace(/\[\^[^\]]+\]/g, ""); // drop footnote markers
   const push = (t, v, href) => { if (v !== "") out.push(href ? { t, v, href } : { t, v }); };
 
-  const re = /(\[([^\]]*)\]\(([^)]+)\))|(\*\*([^*]+)\*\*)|(<sub>([^<]*)<\/sub>)|(`([^`]*)`)/;
+  const re = /(\[([^\]]*)\]\(([^)]+)\))|(\*\*([^*]+)\*\*)|(<sub>([^<]*)<\/sub>)|(`([^`]*)`)|(\*([^*]+)\*)/;
   let m;
   while ((m = re.exec(rest))) {
     push("text", rest.slice(0, m.index));
@@ -46,6 +46,7 @@ function parseInline(md, resolveHref = () => null) {
     } else if (m[4]) push("b", m[5]);
     else if (m[6]) push("sub", m[7]);
     else if (m[8]) push("b", m[9]);
+    else if (m[10]) push("i", m[11]);
     rest = rest.slice(m.index + m[0].length);
   }
   push("text", rest);
@@ -55,12 +56,35 @@ function parseInline(md, resolveHref = () => null) {
 const stripMd = md =>
   md.replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
     .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/\*([^*]+)\*/g, "$1")
     .replace(/`([^`]*)`/g, "$1")
     .replace(/<\/?sub>/g, "")
     .trim();
 
 /* ------------------------------------------------------------------ *
- * controls.md -> docs URL, resolved within the linked section
+ * glossary.md -> TERM -> full name
+ * ------------------------------------------------------------------ */
+
+function buildGlossary() {
+  const terms = {};
+  for (const line of read("flybywire-a32nx/glossary.md").split("\n")) {
+    if (!line.startsWith("|")) continue;
+    const cells = line.split("|").slice(1, -1).map(c => c.trim());
+    if (cells.length !== 2) continue;
+    const term = stripMd(cells[0]);
+    const full = stripMd(cells[1]);
+    if (!term || !full || /^-+$/.test(term) || term === "Term") continue;
+    terms[term.toUpperCase()] = full;
+  }
+  return terms;
+}
+
+const GLOSSARY = buildGlossary();
+const glossOf = s => GLOSSARY[String(s).trim().toUpperCase()] ?? null;
+
+/* ------------------------------------------------------------------ *
+ * controls.md -> docs URL and plain-English name, resolved within the
+ * linked section
  *
  * Procedure links carry the section as an anchor (controls.md#performance),
  * which disambiguates names that appear on more than one panel — "FLAPS"
@@ -75,7 +99,7 @@ const slugify = s =>
 
 function buildControlIndex() {
   const md = read("flybywire-a32nx/controls.md");
-  const sections = new Map(); // slug -> Map(NAME -> url)
+  const sections = new Map(); // slug -> Map(NAME -> { url, desc })
   const global = new Map();
   let slug = "";
 
@@ -88,8 +112,9 @@ function buildControlIndex() {
     const name = stripMd(cells[0]);
     const url = (cells[2].match(/\((https?:\/\/[^)]+)\)/) || [])[1];
     if (!name || !url || /^(Control|Page \/ field|Indication|Panel)$/.test(name)) continue;
-    sections.get(slug)?.set(name.toUpperCase(), url);
-    if (!global.has(name.toUpperCase())) global.set(name.toUpperCase(), url);
+    const entry = { url, desc: stripMd(cells[1]) };
+    sections.get(slug)?.set(name.toUpperCase(), entry);
+    if (!global.has(name.toUpperCase())) global.set(name.toUpperCase(), entry);
   }
 
   const norm = s => s.toUpperCase().replace(/\s+/g, " ").trim();
@@ -152,9 +177,52 @@ function controlHref(text, target) {
   if (!/^controls\.md/.test(target)) return null;
   const anchor = (target.split("#")[1] || "").trim();
   if (!anchor) return null; // prose link to the reference page as a whole
-  const url = lookupControl(text, anchor);
-  if (!url) unresolved.add(`${text} (#${anchor})`);
-  return url;
+  const entry = lookupControl(text, anchor);
+  if (!entry) unresolved.add(`${text} (#${anchor})`);
+  return entry?.url ?? null;
+}
+
+/* ------------------------------------------------------------------ *
+ * plain-English name for a control cell
+ *
+ * "[EXT PWR](controls.md#electrical) pushbutton" -> "External power".
+ * The glossary wins where it has an entry (V1 is "decision speed", not
+ * "takeoff performance entries"), otherwise controls.md supplies the name,
+ * trimmed of the parts the checklist row already says.
+ * ------------------------------------------------------------------ */
+
+const DEVICE = /\s+(pushbuttons?|switch(es)?|selectors?|knobs?|levers?|handles?|handwheels?|signs?|indications?|windows?)$/i;
+const same = (a, b) => String(a).toUpperCase().replace(/\s+/g, " ").trim() ===
+                       String(b).toUpperCase().replace(/\s+/g, " ").trim();
+
+// "navaid and ILS frequency tuning" -> "navaid and instrument landing system …"
+const expandAcronyms = s => s.split(" ").map(w => {
+  const bare = w.replace(/[.,;:]+$/, "");
+  const full = /^[A-Z0-9/&-]{2,}$/.test(bare) && glossOf(bare);
+  return full ? full + w.slice(bare.length) : w;
+}).join(" ");
+
+function controlFull(cell) {
+  const m = String(cell).match(/\[([^\]]+)\]\(controls\.md#([^)]+)\)/);
+  const label = m ? m[1] : stripMd(cell);
+
+  const gloss = glossOf(label);
+  if (gloss) return gloss;
+  if (!m) return null;
+
+  const entry = lookupControl(label, m[2].trim());
+  if (!entry?.desc) return null;
+
+  // "Altitude selector knob — turn to select, …" -> "altitude selector"
+  let desc = entry.desc.split(" — ")[0]
+    .replace(/\s*\([^)]*\)\s*$/, "")     // trailing list of positions
+    .replace(DEVICE, "")                  // the row already names the device
+    .trim();
+  if (/^[A-Z][a-z]/.test(desc)) desc = desc[0].toLowerCase() + desc.slice(1);
+  desc = expandAcronyms(desc);
+
+  // nothing gained if it only echoes the label ("FLAPS lever" -> "flaps")
+  return desc && !same(desc, label) ? desc : null;
 }
 
 /* ------------------------------------------------------------------ *
@@ -265,6 +333,7 @@ function buildProcedure(slug, num) {
         items: b.body.map(r => ({
           id: itemId(slug, r[0], r[1] || ""),
           control: parseInline(r[0], controlHref),
+          full: controlFull(r[0]),
           action: parseInline(r[1] || "", controlHref),
           condition: r[2] && r[2] !== "–" && r[2] !== "-" ? parseInline(r[2], controlHref) : null,
           conditionLabel: b.head[2] || null,
@@ -295,9 +364,8 @@ function buildProcedure(slug, num) {
  * lights matrix
  * ------------------------------------------------------------------ */
 
-function buildLights() {
-  const md = read("flybywire-a32nx/lights.md");
-  const groups = parseSections(md).map(g => ({
+function matrixGroups(md, withFulls = true) {
+  return parseSections(md).map(g => ({
     title: g.title,
     level: g.level,
     blocks: g.blocks.map(b => {
@@ -306,10 +374,29 @@ function buildLights() {
         type: "matrix",
         head: b.head.map(stripMd),
         rows: b.body.map(r => r.map(stripMd)),
+        // plain-English name for each row label, shown under it
+        fulls: withFulls ? b.body.map(r => controlFull(r[0])) : null,
       };
     }),
   }));
-  return { id: "lights", num: "L", title: "Lights by Phase", short: "Lights", groups };
+}
+
+function buildLights() {
+  return {
+    id: "lights", num: "L", title: "Lights by Phase", short: "Lights",
+    groups: matrixGroups(read("flybywire-a32nx/lights.md")),
+  };
+}
+
+/* ------------------------------------------------------------------ *
+ * glossary
+ * ------------------------------------------------------------------ */
+
+function buildGlossaryPhase() {
+  return {
+    id: "glossary", num: "G", title: "Abbreviations", short: "Abbreviations",
+    groups: matrixGroups(read("flybywire-a32nx/glossary.md"), false),
+  };
 }
 
 /* ------------------------------------------------------------------ *
@@ -409,8 +496,14 @@ function buildATC() {
 
 const atc = buildATC();
 const data = {
-  phases: [...PROCEDURES.map((s, n) => buildProcedure(s, n + 1)), buildLights(), atc.phase],
+  phases: [
+    ...PROCEDURES.map((s, n) => buildProcedure(s, n + 1)),
+    buildLights(),
+    buildGlossaryPhase(),
+    atc.phase,
+  ],
   tokens: atc.tokens,
+  glossary: GLOSSARY,
 };
 
 const outFlag = process.argv.indexOf("--out");
@@ -428,4 +521,8 @@ console.log(`wrote ${outPath.replace(ROOT + "/", "")}`);
 console.log(`  ${data.phases.length} phases · ${items.length} checklist items · ${turns.length} radio calls · ${data.tokens.length} worksheet fields`);
 const linked = items.filter(i => i.control.some(n => n.t === "link")).length;
 console.log(`  ${linked}/${items.length} items linked to FlyByWire docs`);
+const named = items.filter(i => i.full).length;
+console.log(`  ${named}/${items.length} items carry a plain-English control name · ${Object.keys(GLOSSARY).length} glossary terms`);
+const unnamed = items.filter(i => !i.full).map(i => stripMd(i.control.map(n => n.v).join("")));
+if (unnamed.length) console.log(`  no plain-English name: ${[...new Set(unnamed)].join(", ")}`);
 if (unresolved.size) console.log(`  unresolved control links: ${[...unresolved].join(", ")}`);

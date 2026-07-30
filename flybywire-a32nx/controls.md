@@ -2,7 +2,8 @@
 
 Every control referenced by the procedures, grouped by where you physically find
 it. The procedure pages link here instead of carrying full documentation URLs, so
-the checklists stay readable.
+the checklists stay readable. For the positions and settings those controls are
+set to — `RET`, `TA/RA`, `IGN/START` — see [Abbreviations](glossary.md).
 
 | Panel | Sections |
 | --- | --- |
